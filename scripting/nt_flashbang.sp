@@ -70,10 +70,40 @@ void CheckIfFlashed(float[3] pos)
 
     BlindPlayer(i, 1000, 255);
 
+    // Direction vector from player to flashbang
+    float vecDir[3];
+    MakeVectorFromPoints(pos, eyePos, vecDir);
+    // Convert direction to angles
+    float dirAngles[3];
+    GetVectorAngles(vecDir, dirAngles);
+    // Eye angles player is facing
+    float eyeAngles[3];
+    GetClientEyeAngles(i, eyeAngles);
+    // Difference between eye angles and flashbang angle
+    float angle[3];
+    SubtractVectors(eyeAngles, dirAngles, angle);
+
+    // Always return positive angle for simplicity
+    if (angle[0] < 0) {
+      angle[0] *= -1;
+    }
+    if (angle[1] < 0) {
+      angle[1] *= -1;
+    }
+    // Give angles from 0 to 180
+    if (angle[0] > 180) {
+      angle[0] -= 180;
+    }
+    if (angle[1] > 180) {
+      angle[1] -= 180;
+    }
+    // Subtract to compensate for pitch offset
+    angle[0] = 180 - angle[0];
+
     char clientName[MAX_NAME_LENGTH];
     GetClientName(i, clientName, sizeof(clientName));
-    PrintToChatAll("Trace hit client %i \"%s\" at eye pos %f %f %f",
-      i, clientName, eyePos[0], eyePos[1], eyePos[2]);
+    PrintToChatAll("Trace hit client %i \"%s\" at eye pos %f %f %f (angles %f %f)",
+      i, clientName, eyePos[0], eyePos[1], eyePos[2], angle[0], angle[1]);
     PrintToChatAll("HIT!");
   }
 }
