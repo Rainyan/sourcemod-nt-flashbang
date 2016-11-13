@@ -45,14 +45,14 @@ public Action Timer_Flashify(Handle timer, any entity)
   AcceptEntityInput(entity, "kill");
 
   // See if anyone gets blinded
-  TraceFlash(nadeCoords);
+  CheckIfFlashed(nadeCoords);
 
   return Plugin_Handled;
 }
 
 // Purpose: Check for line of sight from flashbang
 // origin to all players and flash them accordingly.
-void TraceFlash(float[3] pos)
+void CheckIfFlashed(float[3] pos)
 {
   PrintToChatAll("Doing trace for pos %f %f %f", pos[0], pos[1], pos[2]);
 
@@ -63,33 +63,41 @@ void TraceFlash(float[3] pos)
     float eyePos[3];
     GetClientEyePosition(i, eyePos);
 
-    Handle ray = TR_TraceRayFilterEx(
-      pos, eyePos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_IsPlayer, i);
-/*
-    // Ray hit nothing(??)
-    if (!TR_DidHit(ray)) {
-      PrintToChatAll("TR_DidHit = false");
-      delete ray;
-      continue;
-    }*/
-
-    int hitIndex = TR_GetEntityIndex(ray);
-    if (hitIndex != i) {
-      //PrintToChatAll("TR_GetEntityIndex %i is not client %i", hitIndex, i);
+    if (!TraceHitEyes(i, pos, eyePos)) {
       PrintToChatAll("MISS!");
-      delete ray;
       continue;
     }
+
+    BlindPlayer(i, 1000, 255);
 
     char clientName[MAX_NAME_LENGTH];
     GetClientName(i, clientName, sizeof(clientName));
     PrintToChatAll("Trace hit client %i \"%s\" at eye pos %f %f %f",
       i, clientName, eyePos[0], eyePos[1], eyePos[2]);
     PrintToChatAll("HIT!");
-    BlindPlayer(i, 1000, 255);
-
-    delete ray;
   }
+}
+
+bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
+{
+  Handle ray = TR_TraceRayFilterEx(
+    startPos, eyePos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_IsPlayer, client);
+
+    /*// Ray hit nothing(??)
+    if (!TR_DidHit(ray)) {
+      PrintToChatAll("TR_DidHit = false");
+      delete ray;
+      return false;
+    }*/
+
+  int hitIndex = TR_GetEntityIndex(ray);
+  delete ray;
+  if (hitIndex != client) {
+    //PrintToChatAll("TR_GetEntityIndex %i is not client %i", hitIndex, client);
+    return false;
+  }
+
+  return true;
 }
 
 // Purpose: Check whether trace hit entity index equals desired client index.
