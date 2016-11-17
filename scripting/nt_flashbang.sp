@@ -134,11 +134,10 @@ void CheckIfFlashed(float[3] pos)
     else if (flashedPercent > 100)
       flashedPercent = 100.0;
 
-    int flashAmount = RoundToNearest(flashedPercent);
+    int intensity = RoundToNearest(flashedPercent);
 
-    PrintToChat(i, "Flashed amount: %i percent", flashAmount);
-
-    BlindPlayer(i, 1000, 255);
+    PrintToChat(i, "Flashed amount: %i percent", intensity);
+    BlindPlayer(i, intensity);
 
     PrintToConsole(i, "Eye %f %f - dir %f %f = %f %f",
       eyeAngles[0], eyeAngles[1],
@@ -191,23 +190,27 @@ public bool TraceFilter_IsPlayer(int hitEntity, int mask, any targetClient)
 }
 
 // Purpose: Flash client's screen white and play a sound effect
-void BlindPlayer(int client, int duration, int alpha, float volume = 0.65)
+void BlindPlayer(int client, int intensity)
 {
   if (!IsValidClient(client))
     return;
 
-  if (duration < 1)
-    ThrowError("Invalid blind duration %i", duration);
+  if (intensity < 1 || intensity > 100)
+    ThrowError("Invalid intensity %i, expected a value between 1-100.", intensity);
 
-  if (alpha < 1 || alpha > 255)
-    ThrowError("Invalid alpha amount %i, expected value within 1 - 255", alpha);
+  int resetDuration = RoundToNearest(5.0 * intensity);
 
-  if (volume <= 0 || volume > 1)
-    ThrowError("Invalid volume %f, expected value within range 0.0-1.0", volume);
+  int alpha = RoundToNearest(2.5 * intensity);
+  if (alpha < 5)
+    alpha = 5;
+
+  float volume = 0.007 * intensity;
+  if (volume < 0.1)
+    volume = 0.1;
 
   Handle userMsg = StartMessageOne("Fade", client);
-  BfWriteShort(userMsg, duration); // Flash duration
-  BfWriteShort(userMsg, 0); // View reset duration
+  BfWriteShort(userMsg, 500); // Flash duration
+  BfWriteShort(userMsg, resetDuration); // View reset duration
   BfWriteShort(userMsg, 0x0001); // Fade in flag
   BfWriteByte(userMsg, 255); // R
   BfWriteByte(userMsg, 255); // G
@@ -216,5 +219,5 @@ void BlindPlayer(int client, int duration, int alpha, float volume = 0.65)
   EndMessage();
 
   EmitSoundToClient(client,
-    g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, 0.65, 200);
+    g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
 }
