@@ -57,7 +57,7 @@ void CheckIfFlashed(float[3] pos)
   PrintToChatAll("Doing trace for pos %f %f %f", pos[0], pos[1], pos[2]);
 
   for (int i = 1; i <= MaxClients; i++) {
-    if (!IsValidClient(i))
+    if (!IsValidClient(i) || IsFakeClient(i))
       continue;
 
     float eyePos[3];
@@ -68,42 +68,89 @@ void CheckIfFlashed(float[3] pos)
       continue;
     }
 
-    BlindPlayer(i, 1000, 255);
+    // Eye angles player is facing, in other words world offset
+    float eyeAngles[3];
+    GetClientEyeAngles(i, eyeAngles);
 
     // Direction vector from player to flashbang
     float vecDir[3];
     MakeVectorFromPoints(pos, eyePos, vecDir);
-    // Convert direction to angles
-    float dirAngles[3];
-    GetVectorAngles(vecDir, dirAngles);
-    // Eye angles player is facing
-    float eyeAngles[3];
-    GetClientEyeAngles(i, eyeAngles);
-    // Difference between eye angles and flashbang angle
-    float angle[3];
-    SubtractVectors(eyeAngles, dirAngles, angle);
+    // Convert to angles
+    float realDir[3];
+    GetVectorAngles (vecDir, realDir);
 
-    // Always return positive angle for simplicity
-    if (angle[0] < 0) {
-      angle[0] *= -1;
+    // Subtract eyes/world offset from grenade angle
+    float angle[3];
+    SubtractVectors(realDir, eyeAngles, angle);
+
+    // How many degrees turned away from flash,
+    // 180 = completely turned, 0 = completely facing
+    angle[0] -= 180;
+    angle[1] -= 180;
+    for (int j = 0; j < 3; j++)
+    {
+      if (angle[j] > 180)
+        angle[j] -= 360;
+
+      if (angle[j] < -180)
+        angle[j] += 360;
+
+      if (angle[j] < 0)
+       angle[j] *= -1;
     }
-    if (angle[1] < 0) {
-      angle[1] *= -1;
-    }
-    // Give angles from 0 to 180
-    if (angle[0] > 180) {
-      angle[0] -= 180;
-    }
-    if (angle[1] > 180) {
-      angle[1] -= 180;
-    }
-    // Subtract to compensate for pitch offset
-    angle[0] = 180 - angle[0];
+
+    // Get eyes distance from flash
+    float distance = GetVectorDistance(eyePos, pos);
+
+    // Start at 100% flashed
+    float flashedPercent = 100.0;
+    // Reduce flashedness based on distance
+    flashedPercent -= distance / 50;
+    // Cap reduction
+    float minimumInitialFlash = 25.0;
+    if (flashedPercent < minimumInitialFlash)
+      flashedPercent = minimumInitialFlash;
+
+    PrintToChat(i, "Initial flash: %f percent", flashedPercent);
+
+    float basePercentile = 0.555; // flashed percentile unit (~100/180)
+    float bestPossibleDodge = 10.0; // can negate max 90% of flash by turning
+
+    // Reduce flashedness based on dodge on X and Y axes
+    float flashAvoidance_Y = (angle[0] * basePercentile) - (flashedPercent / 2);
+    float flashAvoidance_X = (angle[1] * basePercentile) - (flashedPercent / 2);
+    // Get more of the better dodge axis
+    if (flashAvoidance_Y < flashAvoidance_X)
+      flashAvoidance_Y / flashAvoidance_X;
+    else
+      flashAvoidance_X / flashAvoidance_Y;
+
+    flashedPercent -= flashAvoidance_Y;
+    flashedPercent -= flashAvoidance_X;
+
+    // Cap final flash amount
+    if (flashedPercent < bestPossibleDodge)
+      flashedPercent = bestPossibleDodge;
+    else if (flashedPercent > 100)
+      flashedPercent = 100.0;
+
+    int flashAmount = RoundToNearest(flashedPercent);
+
+    PrintToChat(i, "Flashed amount: %i percent", flashAmount);
+
+    BlindPlayer(i, 1000, 255);
+
+    PrintToConsole(i, "Eye %f %f - dir %f %f = %f %f",
+      eyeAngles[0], eyeAngles[1],
+      vecDir[0], vecDir[1],
+      angle[0], angle[1]);
+
+    PrintToChatAll("Angles: %f %f %f", angle[0], angle[1], angle[2])
 
     char clientName[MAX_NAME_LENGTH];
     GetClientName(i, clientName, sizeof(clientName));
-    PrintToChatAll("Trace hit client %i \"%s\" at eye pos %f %f %f (angles %f %f)",
-      i, clientName, eyePos[0], eyePos[1], eyePos[2], angle[0], angle[1]);
+    PrintToChatAll("Trace hit client %i \"%s\" at eye pos %f %f %f",
+      i, clientName, eyePos[0], eyePos[1], eyePos[2]);
     PrintToChatAll("HIT!");
   }
 }
