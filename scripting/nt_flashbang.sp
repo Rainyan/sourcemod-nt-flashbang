@@ -54,7 +54,7 @@ public Action Timer_Flashify(Handle timer, any entity)
 // origin to all players and flash them accordingly.
 void CheckIfFlashed(float[3] pos)
 {
-  PrintToChatAll("Doing trace for pos %f %f %f", pos[0], pos[1], pos[2]);
+  //PrintToChatAll("Doing trace for pos %f %f %f", pos[0], pos[1], pos[2]);
 
   for (int i = 1; i <= MaxClients; i++) {
     if (!IsValidClient(i) || IsFakeClient(i))
@@ -64,7 +64,7 @@ void CheckIfFlashed(float[3] pos)
     GetClientEyePosition(i, eyePos);
 
     if (!TraceHitEyes(i, pos, eyePos)) {
-      PrintToChatAll("MISS!");
+      //PrintToChatAll("MISS!");
       continue;
     }
 
@@ -111,7 +111,7 @@ void CheckIfFlashed(float[3] pos)
     if (flashedPercent < minimumInitialFlash)
       flashedPercent = minimumInitialFlash;
 
-    PrintToChat(i, "Initial flash: %f percent", flashedPercent);
+    PrintToChat(i, "Flashed! Initial flash: %i percent", RoundToNearest(flashedPercent));
 
     float basePercentile = 0.555; // flashed percentile unit (~100/180)
     float bestPossibleDodge = 10.0; // can negate max 90% of flash by turning
@@ -119,11 +119,10 @@ void CheckIfFlashed(float[3] pos)
     // Reduce flashedness based on dodge on X and Y axes
     float flashAvoidance_Y = (angle[0] * basePercentile) - (flashedPercent / 2);
     float flashAvoidance_X = (angle[1] * basePercentile) - (flashedPercent / 2);
-    // Get more of the better dodge axis
+
+    // Emphasize horizonal dodge over vertical
     if (flashAvoidance_Y < flashAvoidance_X)
       flashAvoidance_Y / flashAvoidance_X;
-    else
-      flashAvoidance_X / flashAvoidance_Y;
 
     flashedPercent -= flashAvoidance_Y;
     flashedPercent -= flashAvoidance_X;
@@ -136,9 +135,10 @@ void CheckIfFlashed(float[3] pos)
 
     int intensity = RoundToNearest(flashedPercent);
 
-    PrintToChat(i, "Flashed amount: %i percent", intensity);
+    PrintToChat(i, "Amount after dodge: %i percent", intensity);
     BlindPlayer(i, intensity);
 
+    /*
     PrintToConsole(i, "Eye %f %f - dir %f %f = %f %f",
       eyeAngles[0], eyeAngles[1],
       vecDir[0], vecDir[1],
@@ -151,6 +151,7 @@ void CheckIfFlashed(float[3] pos)
     PrintToChatAll("Trace hit client %i \"%s\" at eye pos %f %f %f",
       i, clientName, eyePos[0], eyePos[1], eyePos[2]);
     PrintToChatAll("HIT!");
+    */
   }
 }
 
