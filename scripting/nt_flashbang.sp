@@ -2,6 +2,7 @@
 #include <sdktools>
 #include <neotokyo>
 
+#define PLUGIN_VERSION "0.1"
 #define TIMER_GRENADE 1.5
 
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
@@ -11,9 +12,14 @@ public Plugin myinfo = {
   name = "NT Flashbangs",
   description = "Replace HE grenades with flashbangs. Experimental.",
   author = "Rain",
-  version = "0.1",
+  version = PLUGIN_VERSION,
   url = "https://github.com/Rainyan/sourcemod-nt-flashbang"
 };
+
+public void OnPluginStart()
+{
+  CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+}
 
 public void OnMapStart()
 {
