@@ -3,10 +3,23 @@
 #include <neotokyo>
 
 #define PLUGIN_VERSION "0.1"
-#define TIMER_GRENADE 1.5
 
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
+
+Handle g_hCvar_Debug_FuseLength;
+Handle g_hCvar_Debug_FlashPercent;
+Handle g_hCvar_Debug_FlashPercentDivisor;
+Handle g_hCvar_Debug_MinimumInitialFlash;
+Handle g_hCvar_Debug_BasePercentile;
+Handle g_hCvar_Debug_BestDodge;
+Handle g_hCvar_Debug_FlashAvoidanceDivisorX;
+Handle g_hCvar_Debug_FlashAvoidanceDivisorY;
+Handle g_hCvar_Debug_ResetDuration_Multipier;
+Handle g_hCvar_Debug_ViewAlpha_Multiplier;
+Handle g_hCvar_Debug_ViewAlpha_Min;
+Handle g_hCvar_Debug_Volume_Multiplier;
+Handle g_hCvar_Debug_Volume_Min;
 
 public Plugin myinfo = {
   name = "NT Flashbangs",
@@ -19,6 +32,25 @@ public Plugin myinfo = {
 public void OnPluginStart()
 {
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+
+  g_hCvar_Debug_FuseLength = CreateConVar("sm_flashbang_debug_fuse", "1.5", "Flashbang fuse length. Debug command.", _, true, 0.1);
+  g_hCvar_Debug_FlashPercent = CreateConVar("sm_flashbang_debug_CheckIfFlashed_initial_flashed_percent", "125", "CheckIfFlashed - float flashedPercent (Start at this percentage flashed)", _, true, 0.0);
+  g_hCvar_Debug_FlashPercentDivisor = CreateConVar("sm_flashbang_debug_CheckIfFlashed_initial_flashed_percent_divisor", "85", "CheckIfFlashed - float distance (Reduce flashedness based on distance)", _, true, 1.0);
+  g_hCvar_Debug_MinimumInitialFlash = CreateConVar("sm_flashbang_debug_CheckIfFlashed_minimum_initial_flash", "25", "CheckIfFlashed - float minimumInitialFlash (Cap flash reduction)", _, true, 0.0, true, 100.0);
+
+  g_hCvar_Debug_BasePercentile = CreateConVar("sm_flashbang_debug_base_percentile", "0.555", "CheckIfFlashed - float basePercentile (flashed percentile unit, ~100/180)");
+  g_hCvar_Debug_BestDodge = CreateConVar("sm_flashbang_debug_best_dodge", "10", "CheckIfFlashed - float bestPossibleDodge (can negate max 100%-bestPossibleDodge of flash by turning)");
+
+  g_hCvar_Debug_FlashAvoidanceDivisorX = CreateConVar("sm_flashbang_debug_avoidance_divisor_x", "2", "CheckIfFlashed - int (Reduce flashedness based on dodge on X and Y axes)", _, true, 0.1);
+  g_hCvar_Debug_FlashAvoidanceDivisorY = CreateConVar("sm_flashbang_debug_avoidance_divisor_y", "2", "CheckIfFlashed - int (Reduce flashedness based on dodge on X and Y axes)", _, true, 0.1);
+
+  g_hCvar_Debug_ResetDuration_Multipier = CreateConVar("sm_flashbang_debug_view_reset_duration_multiplier", "10", "BlindPlayer - float (intensity * this multiplier = view reset duration)", _, true, 0.0);
+
+  g_hCvar_Debug_ViewAlpha_Multiplier = CreateConVar("sm_flashbang_debug_view_alpha_multiplier", "2.5", "BlindPlayer - float (multiplier * internsity = view alpha)");
+  g_hCvar_Debug_ViewAlpha_Min = CreateConVar("sm_flashbang_debug_view_alpha_minimum", "5", "BlindPlayer - int (minimum view alpha)", _, true, 0.0);
+
+  g_hCvar_Debug_Volume_Multiplier = CreateConVar("sm_flashbang_debug_volume_multipliler", "0.007", "BlindPlayer - float (multiplier * intensity = blind victim fx volume)", _, true, 0.0);
+  g_hCvar_Debug_Volume_Min = CreateConVar("sm_flashbang_debug_volume_minimum", "0.1", "BlindPlayer - float (minimum blind victim fx volume, range 0.0-1.0)", _, true, 0.0, true, 1.0);
 }
 
 public void OnMapStart()
@@ -31,7 +63,7 @@ public void OnMapStart()
 public void OnEntityCreated(int entity, const char[] classname)
 {
   if (StrEqual(classname, "grenade_projectile")) {
-    CreateTimer(TIMER_GRENADE, Timer_Flashify, entity);
+    CreateTimer(GetConVarFloat(g_hCvar_Debug_FuseLength), Timer_Flashify, entity);
   }
 }
 
@@ -108,23 +140,25 @@ void CheckIfFlashed(float[3] pos)
     // Get eyes distance from flash
     float distance = GetVectorDistance(eyePos, pos);
 
-    // Start at 100% flashed
-    float flashedPercent = 125.0;
+    // Start at this percentage flashed
+    float flashedPercent = GetConVarFloat(g_hCvar_Debug_FlashPercent);
     // Reduce flashedness based on distance
-    flashedPercent -= distance / 85;
+    flashedPercent -= distance / GetConVarFloat(g_hCvar_Debug_FlashPercentDivisor);
     // Cap reduction
-    float minimumInitialFlash = 25.0;
+    float minimumInitialFlash = GetConVarFloat(g_hCvar_Debug_MinimumInitialFlash);
     if (flashedPercent < minimumInitialFlash)
       flashedPercent = minimumInitialFlash;
 
     PrintToChat(i, "Flashed! Initial flash: %i percent", RoundToNearest(flashedPercent));
 
-    float basePercentile = 0.555; // flashed percentile unit (~100/180)
-    float bestPossibleDodge = 10.0; // can negate max 90% of flash by turning
+    // flashed percentile unit (~100/180 = 0.555)
+    float basePercentile = GetConVarFloat(g_hCvar_Debug_BasePercentile);
+    // can negate max 100%-bestPossibleDodge of flash by turning
+    float bestPossibleDodge = GetConVarFloat(g_hCvar_Debug_BestDodge);
 
     // Reduce flashedness based on dodge on X and Y axes
-    float flashAvoidance_Y = (angle[0] * basePercentile) - (flashedPercent / 2);
-    float flashAvoidance_X = (angle[1] * basePercentile) - (flashedPercent / 2);
+    float flashAvoidance_Y = (angle[0] * basePercentile) - (flashedPercent / GetConVarFloat(g_hCvar_Debug_FlashAvoidanceDivisorY));
+    float flashAvoidance_X = (angle[1] * basePercentile) - (flashedPercent / GetConVarFloat(g_hCvar_Debug_FlashAvoidanceDivisorX));
 
     // Emphasize horizonal dodge over vertical
     if (flashAvoidance_Y < flashAvoidance_X)
@@ -212,15 +246,15 @@ void BlindPlayer(int client, int intensity)
     ClientCommand(client, "-thermoptic");
   }
 
-  int resetDuration = RoundToNearest(10.0 * intensity);
+  int resetDuration = RoundToNearest(GetConVarFloat(g_hCvar_Debug_ResetDuration_Multipier) * intensity);
 
-  int alpha = RoundToNearest(2.5 * intensity);
-  if (alpha < 5)
-    alpha = 5;
+  int alpha = RoundToNearest(GetConVarFloat(g_hCvar_Debug_ViewAlpha_Multiplier) * intensity);
+  if (alpha < GetConVarInt(g_hCvar_Debug_ViewAlpha_Min))
+    alpha = GetConVarInt(g_hCvar_Debug_ViewAlpha_Min);
 
-  float volume = 0.007 * intensity;
-  if (volume < 0.1)
-    volume = 0.1;
+  float volume = GetConVarFloat(g_hCvar_Debug_Volume_Multiplier) * intensity;
+  if (volume < GetConVarFloat(g_hCvar_Debug_Volume_Min))
+    volume = GetConVarFloat(g_hCvar_Debug_Volume_Min);
 
   Handle userMsg = StartMessageOne("Fade", client);
   BfWriteShort(userMsg, 500); // Flash duration
