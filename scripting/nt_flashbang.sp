@@ -7,6 +7,8 @@
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
 
+Handle g_hCvar_Enabled;
+
 Handle g_hCvar_Debug_FuseLength;
 Handle g_hCvar_Debug_FlashPercent;
 Handle g_hCvar_Debug_FlashPercentDivisor;
@@ -31,6 +33,8 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
+  g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
+
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
 
   g_hCvar_Debug_FuseLength = CreateConVar("sm_flashbang_debug_fuse", "1.5", "Flashbang fuse length. Debug command.", _, true, 0.1);
@@ -62,6 +66,10 @@ public void OnMapStart()
 // Purpose: Create a new timer on each thrown HE grenade to turn them into flashes
 public void OnEntityCreated(int entity, const char[] classname)
 {
+  if (!GetConVarBool(g_hCvar_Enabled)) {
+    return;
+  }
+
   if (StrEqual(classname, "grenade_projectile")) {
     CreateTimer(GetConVarFloat(g_hCvar_Debug_FuseLength), Timer_Flashify, entity);
   }
