@@ -230,11 +230,11 @@ bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
 public bool TraceFilter_IsPlayer(int hitEntity, int mask, any targetClient)
 {
   if (hitEntity == targetClient) {
-    PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, true);
+    //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, true);
     return true;
   }
 
-  PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, false);
+  //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, false);
   return false;
 }
 
