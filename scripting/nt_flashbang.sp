@@ -103,9 +103,9 @@ void CheckIfFlashed(float[3] pos)
     float distance = GetVectorDistance(eyePos, pos);
 
     // Start at 100% flashed
-    float flashedPercent = 100.0;
+    float flashedPercent = 125.0;
     // Reduce flashedness based on distance
-    flashedPercent -= distance / 50;
+    flashedPercent -= distance / 85;
     // Cap reduction
     float minimumInitialFlash = 25.0;
     if (flashedPercent < minimumInitialFlash)
@@ -199,7 +199,7 @@ void BlindPlayer(int client, int intensity)
   if (intensity < 1 || intensity > 100)
     ThrowError("Invalid intensity %i, expected a value between 1-100.", intensity);
 
-  int resetDuration = RoundToNearest(5.0 * intensity);
+  int resetDuration = RoundToNearest(10.0 * intensity);
 
   int alpha = RoundToNearest(2.5 * intensity);
   if (alpha < 5)
