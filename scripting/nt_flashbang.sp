@@ -199,6 +199,13 @@ void BlindPlayer(int client, int intensity)
   if (intensity < 1 || intensity > 100)
     ThrowError("Invalid intensity %i, expected a value between 1-100.", intensity);
 
+  // Close vision if enabled
+  // FIXME: This acts kind of weird with half flashes sometimes
+  if (IsUsingVision(client))
+  {
+    ClientCommand(client, "-thermoptic");
+  }
+
   int resetDuration = RoundToNearest(10.0 * intensity);
 
   int alpha = RoundToNearest(2.5 * intensity);
