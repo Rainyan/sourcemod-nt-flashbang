@@ -42,6 +42,7 @@ public void OnPluginStart()
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
   g_bCanModifyNade = true;
+  Assaults_GiveSpawnInformation();
 
   if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWN_PICK)
     CreateTimer(15.0, Timer_CanModifyNade_Revoke);
@@ -93,6 +94,8 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 public Action Timer_ModifyCooldown(Handle timer, any client)
 {
   g_bModifyCooldown[client] = false;
+  Assaults_SendMessage("Flashbang choose time has expired.");
+
   return Plugin_Handled;
 }
 
@@ -394,4 +397,60 @@ int GetFragOwner(int entity, float[3] position)
   PrintToChatAll("Grenade owner: %i %s", owner, clientName);
 
   return owner;
+}
+
+// Purpose: Let assault players know which flashbang rules the server is using
+void Assaults_GiveSpawnInformation()
+{
+  int mode = GetConVarInt(g_hCvar_Mode);
+
+  for (int i = 1; i <= MaxClients; i++)
+  {
+    if (!IsValidClient(i) || IsFakeClient(i) || !IsAssault(i))
+      continue;
+
+    switch (mode)
+    {
+      case MODE_SPAWN_PICK:
+      {
+        PrintToChat(i, "You can choose between a frag and flashbang in spawn:");
+        PrintToChat(i, "equip a grenade and hold aim for a moment.");
+      }
+      case MODE_FORCE_FLASH:
+      {
+        PrintToChat(i, "All frag grenades are flashbangs.");
+      }
+      case MODE_FREE_SWITCH:
+      {
+        PrintToChat(i, "You can freely switch between a frag and flashbang during the round:");
+        PrintToChat(i, "equip a grenade and hold aim for a moment.");
+      }
+    }
+  }
+}
+
+void Assaults_SendMessage(const char[] message, any ...)
+{
+  decl String:formatMessage[128];
+  VFormat(formatMessage, sizeof(formatMessage), message, 2);
+
+  for (int i = 1; i <= MaxClients; i++)
+  {
+    if (!IsValidClient(i) || IsFakeClient(i) || !IsAssault(i))
+      continue;
+
+    PrintToChat(i, formatMessage);
+  }
+}
+
+bool IsAssault(int client)
+{
+  int team = GetClientTeam(client);
+  if (team != TEAM_NSF && team != TEAM_JINRAI)
+    return false;
+
+  if (GetPlayerClass(client) != CLASS_ASSAULT)
+    return false;
+
+  return true;
 }
