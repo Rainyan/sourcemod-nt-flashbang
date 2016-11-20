@@ -17,8 +17,9 @@ bool g_bWantsFlashbang[MAXPLAYERS+1];
 Handle g_hCvar_Mode;
 
 enum {
-  MODE_SPAWNPICK = 1,
-  MODE_FORCEFLASH
+  MODE_SPAWN_PICK = 1,
+  MODE_FORCE_FLASH,
+  MODE_FREE_SWITCH
 };
 
 public Plugin myinfo = {
@@ -33,7 +34,7 @@ public void OnPluginStart()
 {
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
 
-  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "1", "How flashbangs work. 1 = players can choose between frag/flash at spawn, 2 = all frags are always flashbangs.", _, true, 1.0, true, 2.0);
+  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "1", "How flashbangs work. 1 = players can choose between frag/flash at spawn with the aim key, 2 = all frags are always flashbangs. 3 = players can switch between a frag or flash at any time with the aim key.", _, true, 1.0, true, 3.0);
 
   HookEvent("game_round_start", Event_RoundStart);
 }
@@ -42,12 +43,12 @@ public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadca
 {
   g_bCanModifyNade = true;
 
-  if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWNPICK)
-    CreateTimer(15.0, Timer_CanModifyNade);
+  if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWN_PICK)
+    CreateTimer(15.0, Timer_CanModifyNade_Revoke);
 }
 
 // Purpose: Prevent nade switching after spawn freezetime, if desired
-public Action Timer_CanModifyNade(Handle timer)
+public Action Timer_CanModifyNade_Revoke(Handle timer)
 {
   g_bCanModifyNade = false;
 }
@@ -64,7 +65,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
   CreateTimer(0.2, Timer_ModifyCooldown, client);
 
   // Nade toggling is not allowed at all in this cvar mode
-  if (GetConVarInt(g_hCvar_Mode) != MODE_SPAWNPICK)
+  if (GetConVarInt(g_hCvar_Mode) == MODE_FORCE_FLASH)
     return Plugin_Continue;
   // Nade toggling time has expired in this "sm_flashbang_mode" mode
   if (!g_bCanModifyNade)
@@ -117,7 +118,8 @@ public void SpawnPost_Grenade(int entity)
 
   int owner = GetFragOwner(entity, position);
 
-  if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWNPICK)
+  // This flash mode allows players to opt for a regular frag grenade
+  if (GetConVarInt(g_hCvar_Mode) != MODE_FORCE_FLASH)
   {
     if (!g_bWantsFlashbang[owner])
       return;
