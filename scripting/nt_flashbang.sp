@@ -64,7 +64,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
     return Plugin_Continue;
 
   g_bModifyCooldown[client] = true;
-  CreateTimer(0.2, Timer_ModifyCooldown, client);
+  CreateTimer(0.5, Timer_ModifyCooldown, client);
 
   // Nade toggling is not allowed at all in this cvar mode
   if (GetConVarInt(g_hCvar_Mode) == MODE_FORCE_FLASH)
