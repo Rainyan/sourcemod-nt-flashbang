@@ -27,6 +27,14 @@ public void OnPluginStart()
   g_hCvar_Flashbang_Enabled = FindConVar("sm_flashbang_enabled");
   if (g_hCvar_Flashbang_Enabled == null)
     SetFailState("NT Flashbang plugin not found.");
+
+  HookEvent("game_round_start", Event_RoundStart);
+}
+
+public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
+{
+  PrintToChatAll("Turn frag grenades into flashbangs in currently: %sd", status[GetConVarBool(g_hCvar_Flashbang_Enabled)]);
+  PrintToChatAll("You can toggle this with !voteflash");
 }
 
 public void OnConfigsExecuted()
