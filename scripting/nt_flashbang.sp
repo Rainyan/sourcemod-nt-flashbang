@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <sdkhooks>
 #include <sdktools>
 #include <neotokyo>
 
@@ -7,6 +8,18 @@
 
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
+new const String:g_sNadeType[][] = {"FRAG", "FLASH"};
+
+bool g_bCanModifyNade;
+bool g_bModifyCooldown[MAXPLAYERS+1];
+bool g_bWantsFlashbang[MAXPLAYERS+1];
+
+Handle g_hCvar_Mode;
+
+enum {
+  MODE_SPAWNPICK = 1,
+  MODE_FORCEFLASH
+};
 
 public Plugin myinfo = {
   name = "NT Flashbangs",
@@ -19,30 +32,118 @@ public Plugin myinfo = {
 public void OnPluginStart()
 {
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+
+  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "1", "How flashbangs work. 1 = players can choose between frag/flash at spawn, 2 = all frags are always flashbangs.", _, true, 1.0, true, 2.0);
+
+  HookEvent("game_round_start", Event_RoundStart);
 }
 
+public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
+{
+  g_bCanModifyNade = true;
+
+  if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWNPICK)
+    CreateTimer(15.0, Timer_CanModifyNade);
+}
+
+// Purpose: Prevent nade switching after spawn freezetime, if desired
+public Action Timer_CanModifyNade(Handle timer)
+{
+  g_bCanModifyNade = false;
+}
+
+// Purpose: Check for user input (aim + grenade equipped),
+// handle according to the server "sm_flashbang_mode" setting.
+public Action OnPlayerRunCmd(int client, int &buttons)
+{
+  // Check for cooldown before doing anything else, for performance reasons
+  if (g_bModifyCooldown[client])
+    return Plugin_Continue;
+
+  g_bModifyCooldown[client] = true;
+  CreateTimer(0.2, Timer_ModifyCooldown, client);
+
+  // Nade toggling is not allowed at all in this cvar mode
+  if (GetConVarInt(g_hCvar_Mode) != MODE_SPAWNPICK)
+    return Plugin_Continue;
+  // Nade toggling time has expired in this "sm_flashbang_mode" mode
+  if (!g_bCanModifyNade)
+    return Plugin_Continue;
+  // Player isn't pressing the aim key
+  if ((buttons & IN_AIM) != IN_AIM)
+    return Plugin_Continue;
+
+  decl String:weaponName[19];
+  GetClientWeapon(client, weaponName, sizeof(weaponName));
+  // Player doesn't have a frag grenade equipped
+  if (!StrEqual(weaponName, "weapon_grenade"))
+    return Plugin_Continue;
+
+  // Flip flashbang preference for client
+  g_bWantsFlashbang[client] = !g_bWantsFlashbang[client];
+  // Announce current preference to client
+  PrintToChat(client, "[SM] Grenade type: %s",
+    g_sNadeType[g_bWantsFlashbang[client]]);
+
+  return Plugin_Continue;
+}
+
+// Purpose: Only allow a few input checks per client per second for performance
+public Action Timer_ModifyCooldown(Handle timer, any client)
+{
+  g_bModifyCooldown[client] = false;
+  return Plugin_Handled;
+}
+
+// Purpose: Precache the sounds used for flash effects
 public void OnMapStart()
 {
   PrecacheSound(g_sFlashSound_Environment);
   PrecacheSound(g_sFlashSound_Victim);
 }
 
-// Purpose: Create a new timer on each thrown HE grenade to turn them into flashes
 public void OnEntityCreated(int entity, const char[] classname)
 {
-  if (StrEqual(classname, "grenade_projectile")) {
-    CreateTimer(TIMER_GRENADE, Timer_Flashify, entity);
-  }
+  // Need to wait for entity spawn to get its coordinates
+  if (StrEqual(classname, "grenade_projectile"))
+    SDKHook(entity, SDKHook_SpawnPost, SpawnPost_Grenade);
 }
 
-public Action Timer_Flashify(Handle timer, any entity)
+// Purpose: Create a new timer on each thrown HE grenade to turn them into flashes
+public void SpawnPost_Grenade(int entity)
 {
+  float position[3];
+  GetEntPropVector(entity, Prop_Send, "m_vecOrigin", position);
+
+  int owner = GetFragOwner(entity, position);
+
+  if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWNPICK)
+  {
+    if (!g_bWantsFlashbang[owner])
+      return;
+  }
+
+  DataPack entityData = new DataPack();
+  entityData.WriteCell(entity);
+  entityData.WriteCell(owner);
+
+  PrintToChatAll("Written coords: %f %f %f", position[0], position[1], position[2]);
+
+  CreateTimer(TIMER_GRENADE, Timer_Flashify, entityData);
+}
+
+// Purpose: Turn a grenade into a flashbang by entity index
+public Action Timer_Flashify(Handle timer, DataPack entityData)
+{
+  entityData.Reset();
+  int entity =  entityData.ReadCell(); // entity index
+  //int owner = entityData.ReadCell(); // owner client index
+
+  float explosionPos[3];
+  GetEntPropVector(entity, Prop_Send, "m_vecOrigin", explosionPos);
+
   if (!IsValidEntity(entity))
     return Plugin_Stop;
-
-  // Get flash position
-  float nadeCoords[3];
-  GetEntPropVector(entity, Prop_Send, "m_vecOrigin", nadeCoords);
 
   // Make flash explosion sound at grenade position
   EmitSoundToAll(g_sFlashSound_Environment, entity, _, SNDLEVEL_GUNFIRE, _, 1.0);
@@ -51,7 +152,7 @@ public Action Timer_Flashify(Handle timer, any entity)
   AcceptEntityInput(entity, "kill");
 
   // See if anyone gets blinded
-  CheckIfFlashed(nadeCoords);
+  CheckIfFlashed(explosionPos);
 
   return Plugin_Handled;
 }
@@ -70,7 +171,7 @@ void CheckIfFlashed(float[3] pos)
     GetClientEyePosition(i, eyePos);
 
     if (!TraceHitEyes(i, pos, eyePos)) {
-      //PrintToChatAll("MISS!");
+      PrintToChatAll("MISS!");
       continue;
     }
 
@@ -163,6 +264,10 @@ void CheckIfFlashed(float[3] pos)
 
 bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
 {
+  PrintToChatAll("Tracing from %f %f %f to %f %f %f",
+    startPos[0], startPos[1], startPos[2],
+    eyePos[0], eyePos[1], eyePos[2]);
+
   Handle ray = TR_TraceRayFilterEx(
     startPos, eyePos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_IsPlayer, client);
 
@@ -176,7 +281,7 @@ bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
   int hitIndex = TR_GetEntityIndex(ray);
   delete ray;
   if (hitIndex != client) {
-    //PrintToChatAll("TR_GetEntityIndex %i is not client %i", hitIndex, client);
+    PrintToChatAll("TR_GetEntityIndex %i is not client %i", hitIndex, client);
     return false;
   }
 
@@ -234,4 +339,57 @@ void BlindPlayer(int client, int intensity)
 
   EmitSoundToClient(client,
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
+}
+
+int GetFragOwner(int entity, float[3] position)
+{
+  if (!IsValidEntity(entity))
+    return 0;
+
+  float eyePos[3];
+  float distance[MAXPLAYERS+1];
+
+  int candidates;
+  for (int i = 1; i <= MaxClients; i++)
+  {
+    if (!IsValidClient(i))
+      continue;
+
+    decl String:weaponName[19];
+    GetClientWeapon(i, weaponName, sizeof(weaponName));
+    if (!StrEqual(weaponName, "weapon_grenade"))
+      continue;
+
+    GetClientEyePosition(i, eyePos);
+
+    distance[i] = GetVectorDistance(position, eyePos);
+    candidates++;
+  }
+
+  int owner = 0;
+  for (int i = 0; i < candidates; i++)
+  {
+    // Only 1 possible owner
+    if (i+1 == candidates)
+    {
+      owner = 1;
+      break;
+    }
+    // Everyone is processed
+    else if (i-1 == candidates)
+    {
+      break;
+    }
+    // This client was closer to the entity when it was created
+    if (distance[i] < distance[i+1])
+    {
+      owner = i;
+    }
+  }
+
+  decl String:clientName[MAX_NAME_LENGTH];
+  GetClientName(owner, clientName, sizeof(clientName));
+  PrintToChatAll("Grenade owner: %i %s", owner, clientName);
+
+  return owner;
 }
