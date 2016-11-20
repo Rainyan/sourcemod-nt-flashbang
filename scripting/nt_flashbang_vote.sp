@@ -29,6 +29,11 @@ public void OnPluginStart()
     SetFailState("NT Flashbang plugin not found.");
 }
 
+public void OnConfigsExecuted()
+{
+  AutoExecConfig(true);
+}
+
 public Action Command_VoteFlash(int client, int args)
 {
   if (!GetConVarBool(g_hCvar_Enabled))

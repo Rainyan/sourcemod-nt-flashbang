@@ -57,6 +57,11 @@ public void OnPluginStart()
   g_hCvar_Debug_Volume_Min = CreateConVar("sm_flashbang_debug_volume_minimum", "0.1", "BlindPlayer - float (minimum blind victim fx volume, range 0.0-1.0)", _, true, 0.0, true, 1.0);
 }
 
+public void OnConfigsExecuted()
+{
+  AutoExecConfig(true);
+}
+
 public void OnMapStart()
 {
   PrecacheSound(g_sFlashSound_Environment);
