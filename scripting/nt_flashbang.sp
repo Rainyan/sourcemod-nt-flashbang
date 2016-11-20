@@ -52,7 +52,7 @@ public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadca
 public Action Timer_CanModifyNade_Revoke(Handle timer)
 {
   g_bCanModifyNade = false;
-  Assaults_SendMessage("Flashbang choose time has expired.");
+  Assaults_SendMessage("[SM] Flashbang choose time has expired.");
 }
 
 // Purpose: Check for user input (aim + grenade equipped),
@@ -413,17 +413,17 @@ void Assaults_GiveSpawnInformation()
     {
       case MODE_SPAWN_PICK:
       {
-        PrintToChat(i, "You can choose between a frag and flashbang in spawn:");
-        PrintToChat(i, "equip a grenade and hold aim for a moment.");
+        PrintToChat(i, "[SM] You can choose between a frag and flashbang in spawn:");
+        PrintToChat(i, "To select, equip a grenade and hold aim for a moment.");
       }
       case MODE_FORCE_FLASH:
       {
-        PrintToChat(i, "All frag grenades are flashbangs.");
+        PrintToChat(i, "[SM] All frag grenades are flashbangs.");
       }
       case MODE_FREE_SWITCH:
       {
-        PrintToChat(i, "You can freely switch between a frag and flashbang during the round:");
-        PrintToChat(i, "equip a grenade and hold aim for a moment.");
+        PrintToChat(i, "[SM] You can freely switch between a frag and flashbang during the round.");
+        PrintToChat(i, "To select, equip a grenade and hold aim for a moment.");
       }
     }
   }
