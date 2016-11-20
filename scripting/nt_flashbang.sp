@@ -34,7 +34,7 @@ public void OnPluginStart()
 {
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
 
-  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "1", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the aim key, 3 = players can freely switch between a frag or flash at any time with the aim key.", _, true, 1.0, true, 3.0);
+  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the aim key, 3 = players can freely switch between a frag or flash at any time with the aim key.", _, true, 1.0, true, 3.0);
 
   HookEvent("game_round_start", Event_RoundStart);
 }
