@@ -52,6 +52,7 @@ public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadca
 public Action Timer_CanModifyNade_Revoke(Handle timer)
 {
   g_bCanModifyNade = false;
+  Assaults_SendMessage("Flashbang choose time has expired.");
 }
 
 // Purpose: Check for user input (aim + grenade equipped),
@@ -94,7 +95,6 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 public Action Timer_ModifyCooldown(Handle timer, any client)
 {
   g_bModifyCooldown[client] = false;
-  Assaults_SendMessage("Flashbang choose time has expired.");
 
   return Plugin_Handled;
 }
