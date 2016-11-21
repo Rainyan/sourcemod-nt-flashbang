@@ -34,7 +34,7 @@ public void OnPluginStart()
 {
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
 
-  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the aim key, 3 = players can freely switch between a frag or flash at any time with the aim key.", _, true, 1.0, true, 3.0);
+  g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the alt fire mode key, 3 = players can freely switch between a frag or flash at any time with the alt fire mode key.", _, true, 1.0, true, 3.0);
 
   HookEvent("game_round_start", Event_RoundStart);
 }
@@ -55,7 +55,7 @@ public Action Timer_CanModifyNade_Revoke(Handle timer)
   Assaults_SendMessage("[SM] Flashbang choose time has expired.");
 }
 
-// Purpose: Check for user input (aim + grenade equipped),
+// Purpose: Check for user input (alt fire + grenade equipped),
 // handle according to the server "sm_flashbang_mode" setting.
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
@@ -72,8 +72,8 @@ public Action OnPlayerRunCmd(int client, int &buttons)
   // Nade toggling time has expired in this "sm_flashbang_mode" mode
   if (!g_bCanModifyNade)
     return Plugin_Continue;
-  // Player isn't pressing the aim key
-  if ((buttons & IN_AIM) != IN_AIM)
+  // Player isn't pressing the alt fire mode key
+  if ((buttons & IN_ATTACK2) != IN_ATTACK2)
     return Plugin_Continue;
 
   decl String:weaponName[19];
@@ -413,8 +413,8 @@ void Assaults_GiveSpawnInformation()
     {
       case MODE_SPAWN_PICK:
       {
-        PrintToChat(i, "[SM] You can choose between a frag and flashbang in spawn:");
-        PrintToChat(i, "To select, equip a grenade and hold aim for a moment.");
+        PrintToChat(i, "[SM] During round start, you can choose between a frag \
+and flashbang with the fire mode key.");
       }
       case MODE_FORCE_FLASH:
       {
@@ -422,8 +422,8 @@ void Assaults_GiveSpawnInformation()
       }
       case MODE_FREE_SWITCH:
       {
-        PrintToChat(i, "[SM] You can freely switch between a frag and flashbang during the round.");
-        PrintToChat(i, "To select, equip a grenade and hold aim for a moment.");
+        PrintToChat(i, "[SM] You can freely switch between a frag and flashbang \
+during the round with the fire mode key.");
       }
     }
   }
