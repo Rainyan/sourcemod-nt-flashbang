@@ -33,7 +33,7 @@ public void OnPluginStart()
 
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
-  PrintToChatAll("Turn frag grenades into flashbangs in currently: %sd", status[GetConVarBool(g_hCvar_Flashbang_Enabled)]);
+  PrintToChatAll("Turn frag grenades into flashbangs is currently: %sd", status[GetConVarBool(g_hCvar_Flashbang_Enabled)]);
   PrintToChatAll("You can toggle this with !voteflash");
 }
 
