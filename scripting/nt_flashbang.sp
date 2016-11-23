@@ -137,7 +137,7 @@ void CheckIfFlashed(float[3] pos)
     float flashAvoidance_X = (angle[1] * basePercentile);
 
     //PrintToServer("Angles %f %f", angle[0], angle[1]);
-    if (angle[0] >= 45 || angle[1] >= 45)
+    if (angle[0] >= 75 || angle[1] >= 75)
     {
       //PrintToServer("Reducing from %f", flashedPercent);
       flashedPercent -= flashAvoidance_Y;
