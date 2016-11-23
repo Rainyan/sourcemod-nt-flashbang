@@ -71,13 +71,12 @@ public Action Timer_CanModifyNade_Revoke(Handle timer)
 // handle according to the server "sm_flashbang_mode" setting.
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
-  if ((buttons & IN_VISION) != IN_VISION)
+  if (buttons & IN_VISION && g_bIsForbiddenVision[client])
+  {
+    SetPlayerVision(client, VISION_NONE);
     return Plugin_Continue;
+  }
 
-  if (!g_bIsForbiddenVision[client])
-    return Plugin_Continue;
-
-  // Check for cooldown before doing anything else, for performance reasons
   if (g_bModifyCooldown[client])
     return Plugin_Continue;
 
