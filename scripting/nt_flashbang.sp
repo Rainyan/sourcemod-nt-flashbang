@@ -45,13 +45,14 @@ public void OnEntityCreated(int entity, const char[] classname)
   }
 
   if (StrEqual(classname, "grenade_projectile")) {
-    CreateTimer(FLASHBANG_FUSE, Timer_Flashify, entity);
+    CreateTimer(FLASHBANG_FUSE, Timer_Flashify, EntIndexToEntRef(entity));
   }
 }
 
-public Action Timer_Flashify(Handle timer, any entity)
+public Action Timer_Flashify(Handle timer, any entRef)
 {
-  if (!IsValidEntity(entity))
+  int entity = EntRefToEntIndex(entRef);
+  if (entity == INVALID_ENT_REFERENCE)
     return Plugin_Stop;
 
   // Get flash position
