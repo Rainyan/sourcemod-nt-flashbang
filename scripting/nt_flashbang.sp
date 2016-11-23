@@ -229,11 +229,11 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   if (intensity < 1 || intensity > 100)
     ThrowError("Invalid intensity %i, expected a value between 1-100.", intensity);
 
-  // Close vision if enabled
-  // FIXME: This acts kind of weird with half flashes sometimes
+  // Vision mode can make half flashes easy to
+  // see through, so vision mode gets disabled
   if (IsUsingVision(client))
   {
-    ClientCommand(client, "-thermoptic");
+    TurnOffVision(client);
   }
 
   int alpha = RoundToNearest(2.5 * intensity);
@@ -256,4 +256,23 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 
   EmitSoundToClient(client,
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
+}
+
+void TurnOffVision(int client)
+{
+  ClientCommand(client, "+vision");
+  CreateTimer(0.1, Timer_Vision, GetClientUserId(client));
+}
+
+// Purpose: -vision can't happen at the same time as +vision.
+// Because servers can disable "wait" command, a short timer is used instead.
+public Action Timer_Vision(Handle timer, int userid)
+{
+  int client = GetClientOfUserId(userid);
+  if (!IsValidClient(client))
+    return Plugin_Stop;
+
+  ClientCommand(client, "-vision");
+
+  return Plugin_Handled;
 }
