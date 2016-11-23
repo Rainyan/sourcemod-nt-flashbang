@@ -49,6 +49,9 @@ public void OnPluginStart()
 public void OnConfigsExecuted()
 {
   AutoExecConfig(true);
+
+  if (GetConVarInt(g_hCvar_Mode) == MODE_FREE_SWITCH)
+    g_bCanModifyNade = true;
 }
 
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
