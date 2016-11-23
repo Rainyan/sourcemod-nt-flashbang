@@ -148,7 +148,7 @@ public void SpawnPost_Grenade(int entity)
   float position[3];
   GetEntPropVector(entity, Prop_Send, "m_vecOrigin", position);
 
-  int owner = GetFragOwner(entity, position);
+  int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
   // This flash mode allows players to opt for a regular frag grenade
   if (GetConVarInt(g_hCvar_Mode) != MODE_FORCE_FLASH)
   {
@@ -392,62 +392,6 @@ public Action Timer_AllowVision(Handle timer, int userid)
   g_bIsForbiddenVision[client] = false;
 
   return Plugin_Handled;
-}
-
-// Purpose: Deduce the frag entity owner by finding the closest
-// grenade holding player upon entity creation. Kind of hacky...
-int GetFragOwner(int entity, float[3] position)
-{
-  if (!IsValidEntity(entity))
-    return 0;
-
-  float eyePos[3];
-  float distance[MAXPLAYERS+1];
-
-  int candidates;
-  for (int i = 1; i <= MaxClients; i++)
-  {
-    if (!IsValidClient(i))
-      continue;
-
-    // Client has grenade equipped
-    decl String:weaponName[19];
-    GetClientWeapon(i, weaponName, sizeof(weaponName));
-    if (!StrEqual(weaponName, "weapon_grenade"))
-      continue;
-
-    GetClientEyePosition(i, eyePos);
-
-    // Get client distance from frag
-    distance[i] = GetVectorDistance(position, eyePos);
-    candidates++;
-  }
-
-  // Get the closest client to the frag
-  float distSort[2];
-  PrintToServer("There are %i candidates", candidates);
-  for (int i = 1; i <= MaxClients; i++)
-  {
-    if (distance[i] == 0)
-    {
-      continue;
-    }
-    else if (distSort[1] == 0 || distance[i] < distSort[1])
-    {
-      distSort[0] = i*1.0;
-      distSort[1] = distance[i];
-    }
-  }
-
-  int owner = RoundToNearest(distSort[0]);
-
-  PrintToServer("Owner is %i with distance %f", owner, distSort[1]);
-
-  decl String:clientName[MAX_NAME_LENGTH];
-  GetClientName(owner, clientName, sizeof(clientName));
-  PrintToChatAll("Grenade owner: %i %s", owner, clientName);
-
-  return owner;
 }
 
 // Purpose: Let assault players know which flashbang rules the server is using
