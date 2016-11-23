@@ -120,7 +120,6 @@ public void SpawnPost_Grenade(int entity)
   GetEntPropVector(entity, Prop_Send, "m_vecOrigin", position);
 
   int owner = GetFragOwner(entity, position);
-
   // This flash mode allows players to opt for a regular frag grenade
   if (GetConVarInt(g_hCvar_Mode) != MODE_FORCE_FLASH)
   {
@@ -129,8 +128,8 @@ public void SpawnPost_Grenade(int entity)
   }
 
   DataPack entityData = new DataPack();
-  entityData.WriteCell(entity);
-  entityData.WriteCell(owner);
+  entityData.WriteCell(EntIndexToEntRef(entity));
+  //entityData.WriteCell(owner);
 
   PrintToChatAll("Written coords: %f %f %f", position[0], position[1], position[2]);
 
@@ -141,14 +140,15 @@ public void SpawnPost_Grenade(int entity)
 public Action Timer_Flashify(Handle timer, DataPack entityData)
 {
   entityData.Reset();
-  int entity =  entityData.ReadCell(); // entity index
+  int entRef =  entityData.ReadCell(); // entity reference
   //int owner = entityData.ReadCell(); // owner client index
+
+  int entity = EntRefToEntIndex(entRef);
+  if (entity == INVALID_ENT_REFERENCE)
+    return Plugin_Stop;
 
   float explosionPos[3];
   GetEntPropVector(entity, Prop_Send, "m_vecOrigin", explosionPos);
-
-  if (!IsValidEntity(entity))
-    return Plugin_Stop;
 
   // Make flash explosion sound at grenade position
   EmitSoundToAll(g_sFlashSound_Environment, entity, _, SNDLEVEL_GUNFIRE, _, 1.0);
