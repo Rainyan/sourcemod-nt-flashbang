@@ -51,7 +51,13 @@ public void OnConfigsExecuted()
   AutoExecConfig(true);
 
   if (GetConVarInt(g_hCvar_Mode) == MODE_FREE_SWITCH)
+  {
     g_bCanModifyNade = true;
+  }
+  else
+  {
+    g_bCanModifyNade = false;
+  }
 }
 
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
@@ -70,7 +76,8 @@ public Action Timer_CanModifyNade_Revoke(Handle timer)
   Assaults_SendMessage("[SM] Flashbang choose time has expired.");
 }
 
-// Purpose: Check for user input (alt fire + grenade equipped),
+// Purpose: Block vision mode use while being flashed.
+// Check for user input (alt fire + grenade equipped),
 // handle according to the server "sm_flashbang_mode" setting.
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
