@@ -125,7 +125,7 @@ void CheckIfFlashed(float[3] pos)
     // Start at this percentage flashed
     float flashedPercent = 100.0;
 
-    PrintToChat(i, "Flashed! Initial flash: %i percent", RoundToNearest(flashedPercent));
+    //PrintToChat(i, "Flashed! Initial flash: %i percent", RoundToNearest(flashedPercent));
 
     // flashed percentile unit (~100/180 = 0.555)
     float basePercentile = 0.555;
@@ -136,17 +136,17 @@ void CheckIfFlashed(float[3] pos)
     float flashAvoidance_Y = (angle[0] * basePercentile);
     float flashAvoidance_X = (angle[1] * basePercentile);
 
-    PrintToServer("Angles %f %f", angle[0], angle[1]);
+    //PrintToServer("Angles %f %f", angle[0], angle[1]);
     if (angle[0] >= 45 || angle[1] >= 45)
     {
-      PrintToServer("Reducing from %f", flashedPercent);
+      //PrintToServer("Reducing from %f", flashedPercent);
       flashedPercent -= flashAvoidance_Y;
       flashedPercent -= flashAvoidance_X;
-      PrintToServer("to %f", flashedPercent);
+      //PrintToServer("to %f", flashedPercent);
     }
     else
     {
-      PrintToServer("False, %f >= 90 || %f >= 90", angle[0], angle[1]);
+      //PrintToServer("False, %f >= 90 || %f >= 90", angle[0], angle[1]);
     }
 
     // Cap final flash amount
@@ -157,15 +157,14 @@ void CheckIfFlashed(float[3] pos)
 
     int intensity = RoundToNearest(flashedPercent);
     int duration = RoundToNearest(intensity * 10 - distance*0.5);
-    PrintToServer("duration %i = %i * 10 - %f", duration, intensity, distance/10);
+    //PrintToServer("duration %i = %i * 10 - %f", duration, intensity, distance/10);
 
     if (duration > 1000)
       duration = 1000;
     else if (duration < 50)
       duration = 50;
 
-    PrintToChat(i, "Amount after dodge: %i percent", intensity);
-    PrintToChat(i, "Flashed duration: %i", duration);
+    PrintToChat(i, "Flashed! Intensity %i%%, duration %i%%)", intensity, duration/10);
     BlindPlayer(i, intensity, duration);
 
     /*
