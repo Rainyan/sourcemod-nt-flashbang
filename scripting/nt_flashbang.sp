@@ -167,7 +167,7 @@ public void SpawnPost_Grenade(int entity)
   entityData.WriteCell(EntIndexToEntRef(entity));
   //entityData.WriteCell(owner);
 
-  PrintToChatAll("Written coords: %f %f %f", position[0], position[1], position[2]);
+  //PrintToChatAll("Written coords: %f %f %f", position[0], position[1], position[2]);
 
   CreateTimer(FLASHBANG_FUSE, Timer_Flashify, entityData);
 }
