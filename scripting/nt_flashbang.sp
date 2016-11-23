@@ -15,9 +15,6 @@ Handle g_hCvar_Debug_FlashPercentDivisor;
 Handle g_hCvar_Debug_MinimumInitialFlash;
 Handle g_hCvar_Debug_BasePercentile;
 Handle g_hCvar_Debug_BestDodge;
-Handle g_hCvar_Debug_FlashAvoidanceDivisorX;
-Handle g_hCvar_Debug_FlashAvoidanceDivisorY;
-Handle g_hCvar_Debug_ResetDuration_Multipier;
 Handle g_hCvar_Debug_ViewAlpha_Multiplier;
 Handle g_hCvar_Debug_ViewAlpha_Min;
 Handle g_hCvar_Debug_Volume_Multiplier;
@@ -38,17 +35,12 @@ public void OnPluginStart()
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
 
   g_hCvar_Debug_FuseLength = CreateConVar("sm_flashbang_debug_fuse", "1.5", "Flashbang fuse length. Debug command.", _, true, 0.1);
-  g_hCvar_Debug_FlashPercent = CreateConVar("sm_flashbang_debug_CheckIfFlashed_initial_flashed_percent", "125", "CheckIfFlashed - float flashedPercent (Start at this percentage flashed)", _, true, 0.0);
+  g_hCvar_Debug_FlashPercent = CreateConVar("sm_flashbang_debug_CheckIfFlashed_initial_flashed_percent", "100", "CheckIfFlashed - float flashedPercent (Start at this percentage flashed)", _, true, 0.0);
   g_hCvar_Debug_FlashPercentDivisor = CreateConVar("sm_flashbang_debug_CheckIfFlashed_initial_flashed_percent_divisor", "85", "CheckIfFlashed - float distance (Reduce flashedness based on distance)", _, true, 1.0);
-  g_hCvar_Debug_MinimumInitialFlash = CreateConVar("sm_flashbang_debug_CheckIfFlashed_minimum_initial_flash", "25", "CheckIfFlashed - float minimumInitialFlash (Cap flash reduction)", _, true, 0.0, true, 100.0);
+  g_hCvar_Debug_MinimumInitialFlash = CreateConVar("sm_flashbang_debug_CheckIfFlashed_minimum_initial_flash", "100", "CheckIfFlashed - float minimumInitialFlash (Cap flash reduction)", _, true, 0.0, true, 100.0);
 
   g_hCvar_Debug_BasePercentile = CreateConVar("sm_flashbang_debug_base_percentile", "0.555", "CheckIfFlashed - float basePercentile (flashed percentile unit, ~100/180)");
-  g_hCvar_Debug_BestDodge = CreateConVar("sm_flashbang_debug_best_dodge", "10", "CheckIfFlashed - float bestPossibleDodge (can negate max 100%-bestPossibleDodge of flash by turning)");
-
-  g_hCvar_Debug_FlashAvoidanceDivisorX = CreateConVar("sm_flashbang_debug_avoidance_divisor_x", "2", "CheckIfFlashed - int (Reduce flashedness based on dodge on X and Y axes)", _, true, 0.1);
-  g_hCvar_Debug_FlashAvoidanceDivisorY = CreateConVar("sm_flashbang_debug_avoidance_divisor_y", "2", "CheckIfFlashed - int (Reduce flashedness based on dodge on X and Y axes)", _, true, 0.1);
-
-  g_hCvar_Debug_ResetDuration_Multipier = CreateConVar("sm_flashbang_debug_view_reset_duration_multiplier", "10", "BlindPlayer - float (intensity * this multiplier = view reset duration)", _, true, 0.0);
+  g_hCvar_Debug_BestDodge = CreateConVar("sm_flashbang_debug_best_dodge", "25", "CheckIfFlashed - float bestPossibleDodge (can negate max 100%-bestPossibleDodge of flash by turning)");
 
   g_hCvar_Debug_ViewAlpha_Multiplier = CreateConVar("sm_flashbang_debug_view_alpha_multiplier", "2.5", "BlindPlayer - float (multiplier * internsity = view alpha)");
   g_hCvar_Debug_ViewAlpha_Min = CreateConVar("sm_flashbang_debug_view_alpha_minimum", "5", "BlindPlayer - int (minimum view alpha)", _, true, 0.0);
@@ -136,7 +128,7 @@ void CheckIfFlashed(float[3] pos)
 
     // How many degrees turned away from flash,
     // 180 = completely turned, 0 = completely facing
-    angle[0] -= 180;
+    //angle[0] -= 180;
     angle[1] -= 180;
     for (int j = 0; j < 3; j++)
     {
@@ -170,15 +162,21 @@ void CheckIfFlashed(float[3] pos)
     float bestPossibleDodge = GetConVarFloat(g_hCvar_Debug_BestDodge);
 
     // Reduce flashedness based on dodge on X and Y axes
-    float flashAvoidance_Y = (angle[0] * basePercentile) - (flashedPercent / GetConVarFloat(g_hCvar_Debug_FlashAvoidanceDivisorY));
-    float flashAvoidance_X = (angle[1] * basePercentile) - (flashedPercent / GetConVarFloat(g_hCvar_Debug_FlashAvoidanceDivisorX));
+    float flashAvoidance_Y = (angle[0] * basePercentile);
+    float flashAvoidance_X = (angle[1] * basePercentile);
 
-    // Emphasize horizonal dodge over vertical
-    if (flashAvoidance_Y < flashAvoidance_X)
-      flashAvoidance_Y / flashAvoidance_X;
-
-    flashedPercent -= flashAvoidance_Y;
-    flashedPercent -= flashAvoidance_X;
+    PrintToServer("Angles %f %f", angle[0], angle[1]);
+    if (angle[0] >= 45 || angle[1] >= 45)
+    {
+      PrintToServer("Reducing from %f", flashedPercent);
+      flashedPercent -= flashAvoidance_Y;
+      flashedPercent -= flashAvoidance_X;
+      PrintToServer("to %f", flashedPercent);
+    }
+    else
+    {
+      PrintToServer("False, %f >= 90 || %f >= 90", angle[0], angle[1]);
+    }
 
     // Cap final flash amount
     if (flashedPercent < bestPossibleDodge)
@@ -187,9 +185,17 @@ void CheckIfFlashed(float[3] pos)
       flashedPercent = 100.0;
 
     int intensity = RoundToNearest(flashedPercent);
+    int duration = RoundToNearest(intensity * 10 - distance*0.5);
+    PrintToServer("duration %i = %i * 10 - %f", duration, intensity, distance/10);
+
+    if (duration > 1000)
+      duration = 1000;
+    else if (duration < 50)
+      duration = 50;
 
     PrintToChat(i, "Amount after dodge: %i percent", intensity);
-    BlindPlayer(i, intensity);
+    PrintToChat(i, "Flashed duration: %i", duration);
+    BlindPlayer(i, intensity, duration);
 
     /*
     PrintToConsole(i, "Eye %f %f - dir %f %f = %f %f",
@@ -244,7 +250,7 @@ public bool TraceFilter_IsPlayer(int hitEntity, int mask, any targetClient)
 }
 
 // Purpose: Flash client's screen white and play a sound effect
-void BlindPlayer(int client, int intensity)
+void BlindPlayer(int client, int intensity, int resetDuration)
 {
   if (!IsValidClient(client))
     return;
@@ -259,7 +265,7 @@ void BlindPlayer(int client, int intensity)
     ClientCommand(client, "-thermoptic");
   }
 
-  int resetDuration = RoundToNearest(GetConVarFloat(g_hCvar_Debug_ResetDuration_Multipier) * intensity);
+  //int resetDuration = RoundToNearest(GetConVarFloat(g_hCvar_Debug_ResetDuration_Multipier) * intensity);
 
   int alpha = RoundToNearest(GetConVarFloat(g_hCvar_Debug_ViewAlpha_Multiplier) * intensity);
   if (alpha < GetConVarInt(g_hCvar_Debug_ViewAlpha_Min))
