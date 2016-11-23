@@ -6,6 +6,8 @@
 
 #define FLASHBANG_FUSE 1.5
 
+bool g_bIsForbiddenVision[MAXPLAYERS+1];
+
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
 
@@ -35,6 +37,23 @@ public void OnMapStart()
 {
   PrecacheSound(g_sFlashSound_Environment);
   PrecacheSound(g_sFlashSound_Victim);
+}
+
+// Purpose: Block vision mode use while being flashed
+public Action OnPlayerRunCmd(int client, int &buttons)
+{
+  if ((buttons & IN_VISION) != IN_VISION)
+    return Plugin_Continue;
+
+  if (!g_bIsForbiddenVision[client])
+    return Plugin_Continue;
+
+  return Plugin_Handled;
+}
+
+public void OnClientDisconnect(int client)
+{
+  g_bIsForbiddenVision[client] = false;
 }
 
 // Purpose: Create a new timer on each thrown HE grenade to turn them into flashes
@@ -235,10 +254,10 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 
   // Vision mode can make half flashes easy to
   // see through, so vision mode gets disabled
-  if (IsUsingVision(client))
-  {
-    SetPlayerVision(client, VISION_NONE);
-  }
+  g_bIsForbiddenVision[client] = true;
+  SetPlayerVision(client, VISION_NONE);
+  int userid = GetClientUserId(client);
+  CreateTimer(0.25 + resetDuration / 500.0, Timer_AllowVision, userid);
 
   int alpha = RoundToNearest(2.5 * intensity);
   if (alpha < 5)
@@ -250,7 +269,7 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 
   Handle userMsg = StartMessageOne("Fade", client);
   BfWriteShort(userMsg, 500); // Flash duration
-  BfWriteShort(userMsg, resetDuration); // View reset duration
+  BfWriteShort(userMsg, resetDuration); // View reset duration (ms times 2??)
   BfWriteShort(userMsg, 0x0001); // Fade in flag
   BfWriteByte(userMsg, 255); // R
   BfWriteByte(userMsg, 255); // G
@@ -260,4 +279,16 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 
   EmitSoundToClient(client,
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
+}
+
+public Action Timer_AllowVision(Handle timer, int userid)
+{
+  int client = GetClientOfUserId(userid);
+  if (!IsValidClient(client))
+    return Plugin_Stop;
+
+  PrintToChat(client, "Fade expired");
+  g_bIsForbiddenVision[client] = false;
+
+  return Plugin_Handled;
 }
