@@ -388,7 +388,7 @@ public Action Timer_AllowVision(Handle timer, int userid)
   if (!IsValidClient(client))
     return Plugin_Stop;
 
-  PrintToChat(client, "Fade expired");
+  //PrintToChat(client, "Fade expired");
   g_bIsForbiddenVision[client] = false;
 
   return Plugin_Handled;
