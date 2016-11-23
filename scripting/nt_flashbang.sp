@@ -226,8 +226,12 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   if (!IsValidClient(client))
     return;
 
+  // TODO: These checks will become redundant once the blind values are decided
   if (intensity < 1 || intensity > 100)
     ThrowError("Invalid intensity %i, expected a value between 1-100.", intensity);
+
+  if (resetDuration < 1 || resetDuration > 1000)
+    ThrowError("Invalid reset duration %i, expected a value between  1-1000.", resetDuration);
 
   // Vision mode can make half flashes easy to
   // see through, so vision mode gets disabled
