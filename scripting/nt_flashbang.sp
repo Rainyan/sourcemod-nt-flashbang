@@ -2,11 +2,14 @@
 #include <sdktools>
 #include <neotokyo>
 
-#define PLUGIN_VERSION "0.1"
-#define TIMER_GRENADE 1.5
+#define PLUGIN_VERSION "0.2"
+
+#define FLASHBANG_FUSE 1.5
 
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
+
+Handle g_hCvar_Enabled;
 
 public Plugin myinfo = {
   name = "NT Flashbangs",
@@ -18,7 +21,14 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
+  g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
+
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+}
+
+public void OnConfigsExecuted()
+{
+  AutoExecConfig(true);
 }
 
 public void OnMapStart()
@@ -30,8 +40,12 @@ public void OnMapStart()
 // Purpose: Create a new timer on each thrown HE grenade to turn them into flashes
 public void OnEntityCreated(int entity, const char[] classname)
 {
+  if (!GetConVarBool(g_hCvar_Enabled)) {
+    return;
+  }
+
   if (StrEqual(classname, "grenade_projectile")) {
-    CreateTimer(TIMER_GRENADE, Timer_Flashify, entity);
+    CreateTimer(FLASHBANG_FUSE, Timer_Flashify, entity);
   }
 }
 
@@ -91,7 +105,7 @@ void CheckIfFlashed(float[3] pos)
 
     // How many degrees turned away from flash,
     // 180 = completely turned, 0 = completely facing
-    angle[0] -= 180;
+    //angle[0] -= 180;
     angle[1] -= 180;
     for (int j = 0; j < 3; j++)
     {
@@ -108,30 +122,32 @@ void CheckIfFlashed(float[3] pos)
     // Get eyes distance from flash
     float distance = GetVectorDistance(eyePos, pos);
 
-    // Start at 100% flashed
-    float flashedPercent = 125.0;
-    // Reduce flashedness based on distance
-    flashedPercent -= distance / 85;
-    // Cap reduction
-    float minimumInitialFlash = 25.0;
-    if (flashedPercent < minimumInitialFlash)
-      flashedPercent = minimumInitialFlash;
+    // Start at this percentage flashed
+    float flashedPercent = 100.0;
 
-    PrintToChat(i, "Flashed! Initial flash: %i percent", RoundToNearest(flashedPercent));
+    //PrintToChat(i, "Flashed! Initial flash: %i percent", RoundToNearest(flashedPercent));
 
-    float basePercentile = 0.555; // flashed percentile unit (~100/180)
-    float bestPossibleDodge = 10.0; // can negate max 90% of flash by turning
+    // flashed percentile unit (~100/180 = 0.555)
+    float basePercentile = 0.555;
+    // can negate max 100%-bestPossibleDodge of flash by turning
+    float bestPossibleDodge = 25.0;
 
     // Reduce flashedness based on dodge on X and Y axes
-    float flashAvoidance_Y = (angle[0] * basePercentile) - (flashedPercent / 2);
-    float flashAvoidance_X = (angle[1] * basePercentile) - (flashedPercent / 2);
+    float flashAvoidance_Y = (angle[0] * basePercentile);
+    float flashAvoidance_X = (angle[1] * basePercentile);
 
-    // Emphasize horizonal dodge over vertical
-    if (flashAvoidance_Y < flashAvoidance_X)
-      flashAvoidance_Y / flashAvoidance_X;
-
-    flashedPercent -= flashAvoidance_Y;
-    flashedPercent -= flashAvoidance_X;
+    //PrintToServer("Angles %f %f", angle[0], angle[1]);
+    if (angle[0] >= 75 || angle[1] >= 75)
+    {
+      //PrintToServer("Reducing from %f", flashedPercent);
+      flashedPercent -= flashAvoidance_Y;
+      flashedPercent -= flashAvoidance_X;
+      //PrintToServer("to %f", flashedPercent);
+    }
+    else
+    {
+      //PrintToServer("False, %f >= 90 || %f >= 90", angle[0], angle[1]);
+    }
 
     // Cap final flash amount
     if (flashedPercent < bestPossibleDodge)
@@ -140,9 +156,16 @@ void CheckIfFlashed(float[3] pos)
       flashedPercent = 100.0;
 
     int intensity = RoundToNearest(flashedPercent);
+    int duration = RoundToNearest(intensity * 10 - distance*0.5);
+    //PrintToServer("duration %i = %i * 10 - %f", duration, intensity, distance/10);
 
-    PrintToChat(i, "Amount after dodge: %i percent", intensity);
-    BlindPlayer(i, intensity);
+    if (duration > 1000)
+      duration = 1000;
+    else if (duration < 50)
+      duration = 50;
+
+    PrintToChat(i, "Flashed! Intensity %i%%, duration %i%%)", intensity, duration/10);
+    BlindPlayer(i, intensity, duration);
 
     /*
     PrintToConsole(i, "Eye %f %f - dir %f %f = %f %f",
@@ -188,16 +211,16 @@ bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
 public bool TraceFilter_IsPlayer(int hitEntity, int mask, any targetClient)
 {
   if (hitEntity == targetClient) {
-    PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, true);
+    //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, true);
     return true;
   }
 
-  PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, false);
+  //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, false);
   return false;
 }
 
 // Purpose: Flash client's screen white and play a sound effect
-void BlindPlayer(int client, int intensity)
+void BlindPlayer(int client, int intensity, int resetDuration)
 {
   if (!IsValidClient(client))
     return;
@@ -211,8 +234,6 @@ void BlindPlayer(int client, int intensity)
   {
     ClientCommand(client, "-thermoptic");
   }
-
-  int resetDuration = RoundToNearest(10.0 * intensity);
 
   int alpha = RoundToNearest(2.5 * intensity);
   if (alpha < 5)
