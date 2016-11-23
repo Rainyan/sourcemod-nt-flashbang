@@ -346,6 +346,8 @@ void BlindPlayer(int client, int intensity)
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
 }
 
+// Purpose: Deduce the frag entity owner by finding the closest
+// grenade holding player upon entity creation. Kind of hacky...
 int GetFragOwner(int entity, float[3] position)
 {
   if (!IsValidEntity(entity))
@@ -360,6 +362,7 @@ int GetFragOwner(int entity, float[3] position)
     if (!IsValidClient(i))
       continue;
 
+    // Client has grenade equipped
     decl String:weaponName[19];
     GetClientWeapon(i, weaponName, sizeof(weaponName));
     if (!StrEqual(weaponName, "weapon_grenade"))
@@ -367,30 +370,30 @@ int GetFragOwner(int entity, float[3] position)
 
     GetClientEyePosition(i, eyePos);
 
+    // Get client distance from frag
     distance[i] = GetVectorDistance(position, eyePos);
     candidates++;
   }
 
-  int owner = 0;
-  for (int i = 0; i < candidates; i++)
+  // Get the closest client to the frag
+  float distSort[2];
+  PrintToServer("There are %i candidates", candidates);
+  for (int i = 1; i <= MaxClients; i++)
   {
-    // Only 1 possible owner
-    if (i+1 == candidates)
+    if (distance[i] == 0)
     {
-      owner = 1;
-      break;
+      continue;
     }
-    // Everyone is processed
-    else if (i-1 == candidates)
+    else if (distSort[1] == 0 || distance[i] < distSort[1])
     {
-      break;
-    }
-    // This client was closer to the entity when it was created
-    if (distance[i] < distance[i+1])
-    {
-      owner = i;
+      distSort[0] = i*1.0;
+      distSort[1] = distance[i];
     }
   }
+
+  int owner = RoundToNearest(distSort[0]);
+
+  PrintToServer("Owner is %i with distance %f", owner, distSort[1]);
 
   decl String:clientName[MAX_NAME_LENGTH];
   GetClientName(owner, clientName, sizeof(clientName));
