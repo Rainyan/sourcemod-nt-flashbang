@@ -232,21 +232,24 @@ void CheckIfFlashed(float[3] pos)
     float angle[3];
     SubtractVectors(realDir, eyeAngles, angle);
 
-    PrintToChat(i, "%f %f", angle[0], angle[1]);
-
     // How many degrees turned away from flash,
-    // 180 = completely turned, 0 = completely facing
-    for (int j = 0; j < 3; j++)
+    // 180 = completely turned, 0 = completely facing.
+    // Angles over 180 get capped, eg. 181 -> 179.
+    for (int j = 0; j < 2; j++)
     {
       if (angle[j] > 180)
+      {
         angle[j] -= 360;
-
-      if (angle[j] < -180)
+      }
+      else if (angle[j] < -180)
+      {
         angle[j] += 360;
+      }
 
       if (angle[j] < 0)
         angle[j] *= -1;
     }
+    //PrintToChat(i, "Final angles: %f, %f", angle[0], angle[1]);
 
     // Get eyes distance from flash
     float distance = GetVectorDistance(eyePos, pos);
