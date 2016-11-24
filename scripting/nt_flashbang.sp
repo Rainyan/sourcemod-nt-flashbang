@@ -129,6 +129,7 @@ public Action Timer_ModifyCooldown(Handle timer, any client)
 public void OnClientDisconnect(int client)
 {
   g_bIsForbiddenVision[client] = false;
+  g_bWantsFlashbang[client] = false;
 }
 
 // Purpose: Precache the sounds used for flash effects
