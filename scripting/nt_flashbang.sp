@@ -223,7 +223,7 @@ void CheckIfFlashed(float[3] pos)
 
     // Direction vector from player to flashbang
     float vecDir[3];
-    MakeVectorFromPoints(pos, eyePos, vecDir);
+    MakeVectorFromPoints(eyePos, pos, vecDir);
     // Convert to angles
     float realDir[3];
     GetVectorAngles (vecDir, realDir);
@@ -232,10 +232,10 @@ void CheckIfFlashed(float[3] pos)
     float angle[3];
     SubtractVectors(realDir, eyeAngles, angle);
 
+    PrintToChat(i, "%f %f", angle[0], angle[1]);
+
     // How many degrees turned away from flash,
     // 180 = completely turned, 0 = completely facing
-    //angle[0] -= 180;
-    angle[1] -= 180;
     for (int j = 0; j < 3; j++)
     {
       if (angle[j] > 180)
