@@ -245,7 +245,7 @@ void CheckIfFlashed(float[3] pos)
         angle[j] += 360;
 
       if (angle[j] < 0)
-       angle[j] *= -1;
+        angle[j] *= -1;
     }
 
     // Get eyes distance from flash
