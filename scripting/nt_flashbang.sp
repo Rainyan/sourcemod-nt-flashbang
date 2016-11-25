@@ -1,5 +1,4 @@
 #include <sourcemod>
-#include <sdkhooks>
 #include <sdktools>
 #include <neotokyo>
 
@@ -172,24 +171,19 @@ public void OnMapStart()
   PrecacheSound(g_sFlashSound_Victim);
 }
 
+// Purpose: Create a new timer on each
+// thrown HE grenade to turn them into flashes
 public void OnEntityCreated(int entity, const char[] classname)
 {
-  if (!GetConVarBool(g_hCvar_Enabled)) {
+  if (!GetConVarBool(g_hCvar_Enabled))
     return;
-  }
-
-  // Need to wait for entity spawn to get its coordinates
-  if (StrEqual(classname, "grenade_projectile"))
-    SDKHook(entity, SDKHook_SpawnPost, SpawnPost_Grenade);
-}
-
-// Purpose: Create a new timer on each thrown HE grenade to turn them into flashes
-public void SpawnPost_Grenade(int entity)
-{
-  float position[3];
-  GetEntPropVector(entity, Prop_Send, "m_vecOrigin", position);
 
   int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+  if (!IsValidClient(owner) && GetConVarBool(g_hCvar_Enabled))
+  {
+    ThrowError("Grenade %i has owner %i who is invalid client!", entity, owner);
+  }
+
   // This flash mode allows players to opt for a regular frag grenade
   if (GetConVarInt(g_hCvar_Mode) != MODE_FORCE_FLASH)
   {
@@ -197,22 +191,16 @@ public void SpawnPost_Grenade(int entity)
       return;
   }
 
-  DataPack entityData = new DataPack();
-  entityData.WriteCell(EntIndexToEntRef(entity));
-  //entityData.WriteCell(owner);
-
-  //PrintToChatAll("Written coords: %f %f %f", position[0], position[1], position[2]);
-
-  CreateTimer(FLASHBANG_FUSE, Timer_Flashify, entityData);
+  // Need to wait for entity spawn to get its coordinates
+  if (StrEqual(classname, "grenade_projectile"))
+  {
+    CreateTimer(FLASHBANG_FUSE, Timer_Flashify, EntIndexToEntRef(entity));
+  }
 }
 
 // Purpose: Turn a grenade into a flashbang by entity index
-public Action Timer_Flashify(Handle timer, DataPack entityData)
+public Action Timer_Flashify(Handle timer, int entRef)
 {
-  entityData.Reset();
-  int entRef =  entityData.ReadCell(); // entity reference
-  //int owner = entityData.ReadCell(); // owner client index
-
   int entity = EntRefToEntIndex(entRef);
   if (entity == INVALID_ENT_REFERENCE)
     return Plugin_Stop;
