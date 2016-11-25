@@ -2,7 +2,7 @@
 #include <sdktools>
 #include <neotokyo>
 
-#define PLUGIN_VERSION "0.3"
+#define PLUGIN_VERSION "0.3.1"
 
 #define FLASHBANG_FUSE 1.5
 
