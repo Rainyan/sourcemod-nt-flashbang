@@ -38,17 +38,37 @@ public Plugin myinfo = {
 public void OnPluginStart()
 {
   g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
-
-  CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
-
   g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the alt fire mode key, 3 = players can freely switch between a frag or flash at any time with the alt fire mode key.", _, true, 1.0, true, 3.0);
 
-  HookEvent("game_round_start", Event_RoundStart);
+  HookConVarChange(g_hCvar_Enabled, Cvar_Enabled);
+
+  CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+}
+
+public void Cvar_Enabled(ConVar cvar, const char[] oldVal, const char[] newVal)
+{
+  int iNew = StringToInt(newVal);
+  int iOld = StringToInt(oldVal);
+  // Plugin enabled
+  if (iNew && !iOld)
+  {
+    HookEvent("game_round_start", Event_RoundStart);
+  }
+  // Plugin disabled
+  else if (!iNew && iOld)
+  {
+    UnhookEvent("game_round_start", Event_RoundStart);
+  }
 }
 
 public void OnConfigsExecuted()
 {
   AutoExecConfig(true);
+
+  if (GetConVarBool(g_hCvar_Enabled))
+  {
+    HookEvent("game_round_start", Event_RoundStart);
+  }
 
   if (GetConVarInt(g_hCvar_Mode) == MODE_FREE_SWITCH)
   {
