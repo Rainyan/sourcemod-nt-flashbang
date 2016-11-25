@@ -11,8 +11,9 @@ public Action Timer_CanModifyNade_Revoke(Handle timer)
 }
 
 // Purpose: Only allow a few input checks per client per second for performance
-public Action Timer_ModifyCooldown(Handle timer, int client)
+public Action Timer_ModifyCooldown(Handle timer, int userid)
 {
+  int client = GetClientOfUserId(userid);
   g_bModifyCooldown[client] = false;
 }
 
