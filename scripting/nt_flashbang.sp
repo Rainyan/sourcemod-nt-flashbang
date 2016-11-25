@@ -53,6 +53,16 @@ public void Cvar_Enabled(ConVar cvar, const char[] oldVal, const char[] newVal)
   if (iNew && !iOld)
   {
     HookEvent("game_round_start", Event_RoundStart);
+
+    // Update modify bool since it hasn't been updated while plugin was off
+    if (GetConVarInt(g_hCvar_Mode) == MODE_FREE_SWITCH)
+    {
+      g_bCanModifyNade = true;
+    }
+    else
+    {
+      g_bCanModifyNade = false;
+    }
   }
   // Plugin disabled
   else if (!iNew && iOld)
