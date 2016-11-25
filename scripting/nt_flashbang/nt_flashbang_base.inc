@@ -3,7 +3,6 @@
 #endif
 #define _base_included_
 
-#define FLASHBANG_FUSE 1.5
 
 bool g_bIsForbiddenVision[MAXPLAYERS+1];
 
