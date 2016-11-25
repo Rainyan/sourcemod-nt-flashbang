@@ -38,7 +38,7 @@ public Action Timer_Flashify(Handle timer, int entRef)
   TE_WriteVector("m_vecOrigin", explosionPos);
   TE_WriteNum("m_nEntity", 0);
   TE_WriteNum("m_nIndex", g_iExplosionMark);
-  TE_SendToAll(180.0);
+  TE_SendToAll();
 
   // See if anyone gets blinded
   CheckIfFlashed(explosionPos);
