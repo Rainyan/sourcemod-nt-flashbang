@@ -46,11 +46,12 @@ public void OnConfigsExecuted()
   }
 }
 
-// Purpose: Precache the sounds used for flash effects
+// Purpose: Precache assets used
 public void OnMapStart()
 {
   PrecacheSound(g_sFlashSound_Environment);
   PrecacheSound(g_sFlashSound_Victim);
+  g_iExplosionMark = PrecacheDecal(g_sDecal_ExplosionMark);
 }
 
 public void OnClientDisconnect(int client)

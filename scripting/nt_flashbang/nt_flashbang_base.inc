@@ -5,24 +5,30 @@
 
 #define FLASHBANG_FUSE 1.4
 
-bool g_bIsForbiddenVision[MAXPLAYERS+1];
-
-new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
-new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
-new const String:g_sNadeType[][] = {"FRAG", "FLASH"};
-
-bool g_bCanModifyNade;
-bool g_bModifyCooldown[MAXPLAYERS+1];
-bool g_bWantsFlashbang[MAXPLAYERS+1];
-
-Handle g_hCvar_Enabled;
-Handle g_hCvar_Mode;
-
 enum {
   MODE_FORCE_FLASH = 1,
   MODE_SPAWN_PICK,
   MODE_FREE_SWITCH
 };
+
+int g_iExplosionMark;
+
+bool g_bCanModifyNade;
+bool g_bIsForbiddenVision[MAXPLAYERS+1];
+bool g_bModifyCooldown[MAXPLAYERS+1];
+bool g_bWantsFlashbang[MAXPLAYERS+1];
+
+new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
+new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
+
+new const String:g_sNadeType[][] = {
+  "FRAG",
+  "FLASH"
+};
+new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
+
+Handle g_hCvar_Enabled;
+Handle g_hCvar_Mode;
 
 // Purpose: Let assault players know which flashbang rules the server is using
 void Assaults_GiveSpawnInformation()

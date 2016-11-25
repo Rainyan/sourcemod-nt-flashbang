@@ -33,6 +33,13 @@ public Action Timer_Flashify(Handle timer, int entRef)
   // Remove the grenade
   AcceptEntityInput(entity, "kill");
 
+  // Draw explosion mark on environment
+  TE_Start("BSP Decal");
+  TE_WriteVector("m_vecOrigin", explosionPos);
+  TE_WriteNum("m_nEntity", 0);
+  TE_WriteNum("m_nIndex", g_iExplosionMark);
+  TE_SendToAll(180.0);
+
   // See if anyone gets blinded
   CheckIfFlashed(explosionPos);
 
