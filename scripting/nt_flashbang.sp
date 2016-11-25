@@ -44,6 +44,38 @@ public void OnPluginStart()
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
 }
 
+// Purpose: Precache the sounds used for flash effects
+public void OnMapStart()
+{
+  PrecacheSound(g_sFlashSound_Environment);
+  PrecacheSound(g_sFlashSound_Victim);
+}
+
+public void OnClientDisconnect(int client)
+{
+  g_bIsForbiddenVision[client] = false;
+  g_bWantsFlashbang[client] = false;
+}
+
+public void OnConfigsExecuted()
+{
+  AutoExecConfig(true);
+
+  if (GetConVarBool(g_hCvar_Enabled))
+  {
+    HookEvent("game_round_start", Event_RoundStart);
+  }
+
+  if (GetConVarInt(g_hCvar_Mode) == MODE_FREE_SWITCH)
+  {
+    g_bCanModifyNade = true;
+  }
+  else
+  {
+    g_bCanModifyNade = false;
+  }
+}
+
 public void Cvar_Enabled(ConVar cvar, const char[] oldVal, const char[] newVal)
 {
   int iNew = StringToInt(newVal);
@@ -67,25 +99,6 @@ public void Cvar_Enabled(ConVar cvar, const char[] oldVal, const char[] newVal)
   else if (!iNew && iOld)
   {
     UnhookEvent("game_round_start", Event_RoundStart);
-  }
-}
-
-public void OnConfigsExecuted()
-{
-  AutoExecConfig(true);
-
-  if (GetConVarBool(g_hCvar_Enabled))
-  {
-    HookEvent("game_round_start", Event_RoundStart);
-  }
-
-  if (GetConVarInt(g_hCvar_Mode) == MODE_FREE_SWITCH)
-  {
-    g_bCanModifyNade = true;
-  }
-  else
-  {
-    g_bCanModifyNade = false;
   }
 }
 
@@ -156,19 +169,6 @@ public Action Timer_ModifyCooldown(Handle timer, any client)
   g_bModifyCooldown[client] = false;
 
   return Plugin_Handled;
-}
-
-public void OnClientDisconnect(int client)
-{
-  g_bIsForbiddenVision[client] = false;
-  g_bWantsFlashbang[client] = false;
-}
-
-// Purpose: Precache the sounds used for flash effects
-public void OnMapStart()
-{
-  PrecacheSound(g_sFlashSound_Environment);
-  PrecacheSound(g_sFlashSound_Victim);
 }
 
 // Purpose: Create a new timer on each
@@ -341,13 +341,6 @@ bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
 {
   Handle ray = TR_TraceRayFilterEx(
     startPos, eyePos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_IsPlayer, client);
-
-    /*// Ray hit nothing(??)
-    if (!TR_DidHit(ray)) {
-      PrintToChatAll("TR_DidHit = false");
-      delete ray;
-      return false;
-    }*/
 
   int hitIndex = TR_GetEntityIndex(ray);
   delete ray;
