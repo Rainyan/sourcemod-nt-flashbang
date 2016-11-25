@@ -101,6 +101,9 @@ public Action Timer_CanModifyNade_Revoke(Handle timer)
 // handle according to the server "sm_flashbang_mode" setting.
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
+  if (!GetConVarBool(g_hCvar_Enabled))
+    return Plugin_Continue;
+
   if (buttons & IN_VISION && g_bIsForbiddenVision[client])
   {
     SetPlayerVision(client, VISION_NONE);
