@@ -12,12 +12,17 @@ enum {
 };
 
 int g_iExplosionMark;
+int g_iSpecBlindHint_Full;
+int g_iSpecBlindHint_Half;
 
 bool g_bCanModifyNade;
 bool g_bIsForbiddenVision[MAXPLAYERS+1];
 bool g_bModifyCooldown[MAXPLAYERS+1];
 bool g_bWantsFlashbang[MAXPLAYERS+1];
 
+new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
+new const String:g_sDecal_SpectatorBlindHint_Full[] = "vgui/hud/ctg/g_beacon_circle_filled";
+new const String:g_sDecal_SpectatorBlindHint_Half[] = "vgui/hud/ctg/g_beacon_circle";
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
 
@@ -25,7 +30,6 @@ new const String:g_sNadeType[][] = {
   "FRAG",
   "FLASH"
 };
-new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
 
 Handle g_hCvar_Enabled;
 Handle g_hCvar_Mode;
@@ -114,6 +118,44 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 
   EmitSoundToClient(client,
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
+
+  Spectators_ShowBlindHint(client, intensity);
+}
+
+// Purpose: Display a HUD hint over flashed player's head for spectators.
+void Spectators_ShowBlindHint(int client, int intensity)
+{
+  if (!IsValidClient(client))
+    return;
+
+  float position[3];
+  GetClientEyeAngles(client, position);
+
+  TE_Start("GlowSprite");
+  TE_WriteVector("m_vecOrigin", position);
+  TE_WriteFloat("m_fScale", 1.0);
+  TE_WriteFloat("m_fLife", 3.5);
+  TE_WriteNum("m_nBrightness", 100);
+  if (intensity < 100)
+  {
+    TE_WriteNum("m_nModelIndex", g_iSpecBlindHint_Half);
+  }
+  else
+  {
+    TE_WriteNum("m_nModelIndex", g_iSpecBlindHint_Full);
+  }
+
+  for (int i = 1; i <= MaxClients; i++)
+  {
+    if (!IsValidClient(i) || IsFakeClient(i))
+      continue;
+
+    int team = GetClientTeam(i);
+    if (team != TEAM_SPECTATOR)
+      continue;
+
+    TE_SendToClient(i);
+  }
 }
 
 // Purpose: Check for line of sight from flashbang
