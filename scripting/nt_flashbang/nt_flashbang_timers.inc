@@ -14,7 +14,6 @@ public Action Timer_CanModifyNade_Revoke(Handle timer)
 public Action Timer_ModifyCooldown(Handle timer, any client)
 {
   g_bModifyCooldown[client] = false;
-  return Plugin_Handled;
 }
 
 // Purpose: Turn a grenade into a flashbang by entity index
