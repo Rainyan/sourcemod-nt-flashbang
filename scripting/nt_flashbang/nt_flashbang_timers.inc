@@ -27,11 +27,19 @@ public Action Timer_Flashify(Handle timer, int entRef)
   float explosionPos[3];
   GetEntPropVector(entity, Prop_Send, "m_vecOrigin", explosionPos);
 
-  // Make flash explosion sound at grenade position
-  EmitSoundToAll(g_sFlashSound_Environment, entity, _, SNDLEVEL_GUNFIRE, _, 1.0);
-
   // Remove the grenade
   AcceptEntityInput(entity, "kill");
+
+  TE_Start("Dynamic Light");
+  TE_WriteVector("m_vecOrigin", explosionPos);
+  TE_WriteNum("r", 255);
+  TE_WriteNum("g", 255);
+  TE_WriteNum("b", 255);
+  TE_WriteNum("exponent", 1);
+  TE_WriteFloat("m_fRadius", 512.0);
+  TE_WriteFloat("m_fTime", 0.1);
+  TE_WriteFloat("m_fDecay", 0.0);
+  TE_SendToAll();
 
   // Draw explosion mark on environment
   TE_Start("BSP Decal");
@@ -39,6 +47,9 @@ public Action Timer_Flashify(Handle timer, int entRef)
   TE_WriteNum("m_nEntity", 0);
   TE_WriteNum("m_nIndex", g_iExplosionMark);
   TE_SendToAll();
+
+  // Make flash explosion sound at grenade position
+  EmitSoundToAll(g_sFlashSound_Environment, entity, _, SNDLEVEL_GUNFIRE, _, 1.0);
 
   // See if anyone gets blinded
   CheckIfFlashed(explosionPos);
