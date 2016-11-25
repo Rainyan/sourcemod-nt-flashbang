@@ -4,6 +4,7 @@
 #include "nt_flashbang/nt_flashbang_base"
 #include "nt_flashbang/nt_flashbang_events"
 #include "nt_flashbang/nt_flashbang_timers"
+#include "nt_flashbang/nt_flashbang_trace"
 
 #define PLUGIN_VERSION "0.3.2"
 

@@ -3,8 +3,6 @@
 #endif
 #define _base_included_
 
-#include "nt_flashbang/nt_flashbang_trace"
-
 #define FLASHBANG_FUSE 1.5
 
 bool g_bIsForbiddenVision[MAXPLAYERS+1];
