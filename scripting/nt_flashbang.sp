@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <sdkhooks>
 #include <sdktools>
 #include <neotokyo>
 #include "nt_flashbang/nt_flashbang_base"
@@ -58,13 +59,19 @@ public void OnClientDisconnect(int client)
   g_bWantsFlashbang[client] = false;
 }
 
-// Purpose: Create a new timer on each
-// thrown HE grenade to turn them into flashes
 public void OnEntityCreated(int entity, const char[] classname)
 {
   if (!GetConVarBool(g_hCvar_Enabled))
     return;
 
+  if (StrEqual(classname, "grenade_projectile"))
+    SDKHook(entity, SDKHook_SpawnPost, SpawnPost_Grenade);
+}
+
+// Purpose: Create a new timer on each
+// thrown HE grenade to turn them into flashes
+public void SpawnPost_Grenade(int entity)
+{
   int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
   if (!IsValidClient(owner) && GetConVarBool(g_hCvar_Enabled))
   {
@@ -78,11 +85,7 @@ public void OnEntityCreated(int entity, const char[] classname)
       return;
   }
 
-  // Need to wait for entity spawn to get its coordinates
-  if (StrEqual(classname, "grenade_projectile"))
-  {
-    CreateTimer(FLASHBANG_FUSE, Timer_Flashify, EntIndexToEntRef(entity));
-  }
+  CreateTimer(FLASHBANG_FUSE, Timer_Flashify, EntIndexToEntRef(entity));
 }
 
 // Purpose: Block vision mode use while being flashed.
