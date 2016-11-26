@@ -50,12 +50,15 @@ public void OnConfigsExecuted()
 // Purpose: Precache assets used
 public void OnMapStart()
 {
+  // Sound precache
   PrecacheSound(g_sFlashSound_Environment);
   PrecacheSound(g_sFlashSound_Victim);
-
+  // Decals precache
   g_iExplosionMark = PrecacheDecal(g_sDecal_ExplosionMark);
-  g_iSpecBlindHint_Full = PrecacheModel(g_sDecal_SpectatorBlindHint_Full);
-  g_iSpecBlindHint_Half = PrecacheModel(g_sDecal_SpectatorBlindHint_Half);
+  // Models (textures) precache
+  g_iFlashGrain = PrecacheModel(g_sTexture_FlashGrain);
+  g_iSpecBlindHint_Full = PrecacheModel(g_sTexture_SpectatorBlindHint_Full);
+  g_iSpecBlindHint_Half = PrecacheModel(g_sTexture_SpectatorBlindHint_Half);
 }
 
 public void OnClientDisconnect(int client)
