@@ -61,6 +61,7 @@ public void OnClientDisconnect(int client)
 {
   g_bIsForbiddenVision[client] = false;
   g_bWantsFlashbang[client] = false;
+  g_bModifyCooldown[client] = false;
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
