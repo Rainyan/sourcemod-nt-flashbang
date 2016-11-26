@@ -17,9 +17,17 @@ enum {
   ROLL
 };
 
+enum {
+  COLOR_R = 0,
+  COLOR_G,
+  COLOR_B
+};
+
 int g_iExplosionMark;
 int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
+
+int g_iFlashColor[MAXPLAYERS+1][3];
 
 bool g_bFirstLaunch = true;
 bool g_bCanModifyNade;
@@ -118,9 +126,9 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   BfWriteShort(userMsg, 500); // Flash duration
   BfWriteShort(userMsg, resetDuration); // View reset duration (ms times 2??)
   BfWriteShort(userMsg, 0x0001); // Fade in flag
-  BfWriteByte(userMsg, 255); // R
-  BfWriteByte(userMsg, 255); // G
-  BfWriteByte(userMsg, 255); // B
+  BfWriteByte(userMsg, GetClientFlashColor(client, COLOR_R)); // R
+  BfWriteByte(userMsg, GetClientFlashColor(client, COLOR_G)); // G
+  BfWriteByte(userMsg, GetClientFlashColor(client, COLOR_B)); // B
   BfWriteByte(userMsg, alpha); // A
   EndMessage();
 
@@ -289,4 +297,26 @@ bool IsAssault(int client)
     return false;
 
   return true;
+}
+
+int GetClientFlashColor(int client, int channel)
+{
+  if (!IsValidClient(client))
+    ThrowError("Invalid client %i");
+
+  if (channel < COLOR_R || channel > COLOR_B)
+    ThrowError("Invalid RBG color channel %i", channel);
+
+  return g_iFlashColor[client][channel];
+}
+
+void ResetClientFlashColor(int client)
+{
+  if (client < 1 || client > MaxClients)
+    ThrowError("Out of bounds client index %i", client);
+
+  for (int i = 0; i < sizeof(g_iFlashColor[]); i++)
+  {
+    g_iFlashColor[client][i] = 255;
+  }
 }

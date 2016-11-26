@@ -3,6 +3,7 @@
 #include <sdktools>
 #include <neotokyo>
 #include "nt_flashbang/nt_flashbang_base"
+#include "nt_flashbang/nt_flashbang_clientcommands"
 #include "nt_flashbang/nt_flashbang_events"
 #include "nt_flashbang/nt_flashbang_timers"
 #include "nt_flashbang/nt_flashbang_trace"
@@ -19,12 +20,19 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
+  RegConsoleCmd("sm_flashcolor", Command_FlashColor);
+
   g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
   g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the alt fire mode key, 3 = players can freely switch between a frag or flash at any time with the alt fire mode key.", _, true, 1.0, true, 3.0);
 
   HookConVarChange(g_hCvar_Enabled, Cvar_Enabled);
 
   CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+
+  for (int i = 1; i <= MaxClients; i++)
+  {
+    ResetClientFlashColor(i);
+  }
 }
 
 public void OnConfigsExecuted()
@@ -65,6 +73,8 @@ public void OnClientDisconnect(int client)
   g_bIsForbiddenVision[client] = false;
   g_bWantsFlashbang[client] = false;
   g_bModifyCooldown[client] = false;
+
+  ResetClientFlashColor(client);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
