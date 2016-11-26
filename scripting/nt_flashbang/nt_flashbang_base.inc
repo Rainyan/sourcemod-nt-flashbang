@@ -71,6 +71,7 @@ during the round with the fire mode key.");
   }
 }
 
+// Purpose: Format and send a chat message to all assault players
 void Assaults_SendMessage(const char[] message, any ...)
 {
   decl String:formatMessage[128];
