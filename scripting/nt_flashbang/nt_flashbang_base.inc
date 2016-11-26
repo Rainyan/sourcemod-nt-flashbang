@@ -125,6 +125,8 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 // Purpose: Display a HUD hint over flashed player's head for spectators.
 void Spectators_ShowBlindHint(int client, int intensity)
 {
+  return; // FIXME
+
   if (!IsValidClient(client))
     return;
 
