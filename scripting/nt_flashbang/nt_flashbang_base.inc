@@ -119,18 +119,21 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   EmitSoundToClient(client,
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
 
-  Spectators_ShowBlindHint(client, intensity);
+  //Spectators_ShowBlindHint(client, intensity);
 }
 
 // Purpose: Display a HUD hint over flashed player's head for spectators.
 void Spectators_ShowBlindHint(int client, int intensity)
 {
+  return;
+
   if (!IsValidClient(client))
     return;
 
   float position[3];
-  GetClientEyeAngles(client, position);
-
+  GetClientEyePosition(client, position);
+  position[2] += 10.0;
+/*
   TE_Start("GlowSprite");
   TE_WriteVector("m_vecOrigin", position);
   TE_WriteFloat("m_fScale", 1.0);
@@ -144,15 +147,41 @@ void Spectators_ShowBlindHint(int client, int intensity)
   {
     TE_WriteNum("m_nModelIndex", g_iSpecBlindHint_Full);
   }
+*/
+
+  float angles[3] = {0.0, 0.0, 0.0};
+  TE_Start("EffectDispatch");
+  TE_WriteFloat("m_vOrigin[0]", position[0]);
+  TE_WriteFloat("m_vOrigin[1]", position[1]);
+  TE_WriteFloat("m_vOrigin[2]", position[2]);
+  TE_WriteFloat("m_vStart[0]", position[0]);
+  TE_WriteFloat("m_vStart[1]", position[1]);
+  TE_WriteFloat("m_vStart[2]", position[2]);
+  TE_WriteVector("m_vAngles", angles);
+  TE_WriteVector("m_vNormal", angles);
+  TE_WriteNum("m_fFlags", 0);
+  TE_WriteFloat("m_flMagnitude", 1.0);
+  TE_WriteFloat("m_flScale", 1.0);
+
+  TE_WriteNum("m_nAttachmentIndex", 0);
+  TE_WriteNum("m_nSurfaceProp", 0);
+  TE_WriteNum("m_iEffectName", 0);
+  TE_WriteNum("m_nMaterial", 0);
+  TE_WriteNum("m_nDamageType", 0);
+  TE_WriteNum("m_nHitBox", 0);
+  TE_WriteNum("entindex", g_iSpecBlindHint_Full);
+  TE_WriteNum("m_nColor", 0);
+  TE_WriteFloat("m_flRadius", 100.0);
+
 
   for (int i = 1; i <= MaxClients; i++)
   {
     if (!IsValidClient(i) || IsFakeClient(i))
       continue;
 
-    int team = GetClientTeam(i);
-    if (team != TEAM_SPECTATOR)
-      continue;
+    //int team = GetClientTeam(i);
+    //if (IsPlayerAlive(i) || team != TEAM_SPECTATOR)
+    //  continue;
 
     TE_SendToClient(i);
   }
