@@ -5,13 +5,13 @@
 
 public Action Command_FlashColor(int client, int args)
 {
-  if (args != 3)
+  if (args != RGB_ENUM_COUNT)
   {
     ReplyToCommand(client, "[SM] Usage: !flashcolor <R> <G> <B> (values 0-255)");
     return Plugin_Stop;
   }
 
-  int rgb[3];
+  int rgb[RGB_ENUM_COUNT];
   decl String:argBuffer[3];
 
   // Convert the RGB args into numbers before
@@ -26,8 +26,9 @@ public Action Command_FlashColor(int client, int args)
     rgb[i] = CapRGBValue(StringToInt(argBuffer));
   }
 
-  decl String:cookieBuffer[11];
-  Format(cookieBuffer, sizeof(cookieBuffer), "%i %i %i", rgb[0], rgb[1], rgb[2]);
+  decl String:cookieBuffer[MAX_RGB_STRLEN];
+  Format(cookieBuffer, sizeof(cookieBuffer), "%i %i %i",
+    rgb[RGB_RED], rgb[RGB_GREEN], rgb[RGB_BLUE]);
 
   SetClientCookie(client, g_hCookie_FlashColor, cookieBuffer);
 

@@ -4,6 +4,7 @@
 #define _base_included_
 
 #define FLASHBANG_FUSE 1.4
+#define MAX_RGB_STRLEN 11
 
 enum {
   MODE_FORCE_FLASH = 1,
@@ -18,9 +19,10 @@ enum {
 };
 
 enum {
-  COLOR_R = 0,
-  COLOR_G,
-  COLOR_B
+  RGB_RED = 0,
+  RGB_GREEN,
+  RGB_BLUE,
+  RGB_ENUM_COUNT
 };
 
 int g_iExplosionMark;
@@ -128,9 +130,9 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   BfWriteShort(userMsg, 500); // Flash duration
   BfWriteShort(userMsg, resetDuration); // View reset duration (ms times 2??)
   BfWriteShort(userMsg, 0x0001); // Fade in flag
-  BfWriteByte(userMsg, g_iFlashColor[client][COLOR_R]);
-  BfWriteByte(userMsg, g_iFlashColor[client][COLOR_G]);
-  BfWriteByte(userMsg, g_iFlashColor[client][COLOR_B]);
+  BfWriteByte(userMsg, g_iFlashColor[client][RGB_RED]);
+  BfWriteByte(userMsg, g_iFlashColor[client][RGB_GREEN]);
+  BfWriteByte(userMsg, g_iFlashColor[client][RGB_BLUE]);
   BfWriteByte(userMsg, alpha);
   EndMessage();
 
@@ -306,10 +308,10 @@ void GetClientFlashColor(int client)
   if (!IsValidClient(client) || !AreClientCookiesCached(client))
     return;
 
-  decl String:cookieBuffer[11];
+  decl String:cookieBuffer[MAX_RGB_STRLEN];
   GetClientCookie(client, g_hCookie_FlashColor, cookieBuffer, sizeof(cookieBuffer));
 
-  decl String:rgbBuffer[3][3];
+  decl String:rgbBuffer[RGB_ENUM_COUNT][3];
   ExplodeString(cookieBuffer, " ",
     rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
 
