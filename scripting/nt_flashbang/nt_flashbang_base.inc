@@ -303,7 +303,7 @@ bool IsAssault(int client)
 
 void GetClientFlashColor(int client)
 {
-  if (!IsValidClient(client))
+  if (!IsValidClient(client) || !AreClientCookiesCached(client))
     return;
 
   decl String:cookieBuffer[11];
