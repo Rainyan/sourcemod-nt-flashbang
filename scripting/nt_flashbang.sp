@@ -159,8 +159,18 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 
 public void OnClientCookiesCached(int client)
 {
-  decl String:cookieBuffer[11];
+  decl String:cookieBuffer[MAX_RGB_STRLEN];
   GetClientCookie(client, g_hCookie_FlashColor, cookieBuffer, sizeof(cookieBuffer));
+
+  decl String:rgbBuffer[RGB_ENUM_COUNT][4];
+  ExplodeString(cookieBuffer, " ",
+    rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
+
+  for (int i = 0; i < sizeof(rgbBuffer); i++)
+  {
+    int color = CapRGBValue(StringToInt(rgbBuffer[i]));
+    g_iFlashColor[client][i] = color;
+  }
 
   PrintToChatAll("Cookie cached for client %i! Value: %s", client, cookieBuffer);
 }

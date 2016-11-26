@@ -4,7 +4,7 @@
 #define _base_included_
 
 #define FLASHBANG_FUSE 1.4
-#define MAX_RGB_STRLEN 11
+#define MAX_RGB_STRLEN 12
 
 enum {
   MODE_FORCE_FLASH = 1,
@@ -308,18 +308,7 @@ void GetClientFlashColor(int client)
   if (!IsValidClient(client) || !AreClientCookiesCached(client))
     return;
 
-  decl String:cookieBuffer[MAX_RGB_STRLEN];
-  GetClientCookie(client, g_hCookie_FlashColor, cookieBuffer, sizeof(cookieBuffer));
-
-  decl String:rgbBuffer[RGB_ENUM_COUNT][3];
-  ExplodeString(cookieBuffer, " ",
-    rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
-
-  for (int i = 0; i < sizeof(rgbBuffer); i++)
-  {
-    int color = CapRGBValue(StringToInt(rgbBuffer[i]));
-    g_iFlashColor[client][i] = color;
-  }
+  OnClientCookiesCached(client);
 }
 
 void ResetClientFlashColor(int client)

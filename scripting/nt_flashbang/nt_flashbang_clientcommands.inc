@@ -12,7 +12,7 @@ public Action Command_FlashColor(int client, int args)
   }
 
   int rgb[RGB_ENUM_COUNT];
-  decl String:argBuffer[3];
+  decl String:argBuffer[4];
 
   // Convert the RGB args into numbers before
   // passing them to the flashbang color cookie.
@@ -31,8 +31,11 @@ public Action Command_FlashColor(int client, int args)
     rgb[RGB_RED], rgb[RGB_GREEN], rgb[RGB_BLUE]);
 
   SetClientCookie(client, g_hCookie_FlashColor, cookieBuffer);
+  GetClientFlashColor(client);
 
   ReplyToCommand(client, "RGB: %s", cookieBuffer);
+  ReplyToCommand(client, "Cookie currently reads %i %i %i",
+    g_iFlashColor[RGB_RED], g_iFlashColor[RGB_GREEN], g_iFlashColor[RGB_BLUE]);
 
   return Plugin_Handled;
 }
