@@ -23,19 +23,7 @@ public Action Command_FlashColor(int client, int args)
   {
     // n+1 because the 0th index holds the command itself
     GetCmdArg(i + 1, argBuffer, sizeof(argBuffer));
-
-    int color = StringToInt(argBuffer);
-    // Cap within the RGB range
-    if (color < 0)
-    {
-      color = 0;
-    }
-    else if (color > 255)
-    {
-      color = 255;
-    }
-
-    rgb[i] = color;
+    rgb[i] = CapRGBValue(StringToInt(argBuffer));
   }
 
   decl String:cookieBuffer[11];

@@ -315,13 +315,7 @@ void GetClientFlashColor(int client)
 
   for (int i = 0; i < sizeof(rgbBuffer); i++)
   {
-    int color = StringToInt(rgbBuffer[i]);
-
-    if (color < 0)
-      color = 0;
-    else if (color > 255)
-      color = 255;
-
+    int color = CapRGBValue(StringToInt(rgbBuffer[i]));
     g_iFlashColor[client][i] = color;
   }
 }
@@ -335,4 +329,18 @@ void ResetClientFlashColor(int client)
   {
     g_iFlashColor[client][i] = 255;
   }
+}
+
+int CapRGBValue(int value)
+{
+  if (value < 0)
+  {
+    return 0;
+  }
+  else if (value > 255)
+  {
+    return 255;
+  }
+
+  return value;
 }
