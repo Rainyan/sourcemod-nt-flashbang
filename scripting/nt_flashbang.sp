@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <clientprefs>
 #include <sdkhooks>
 #include <sdktools>
 #include <neotokyo>
@@ -20,6 +21,8 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
+  g_hCookie_FlashColor = RegClientCookie("nt_flashbang_color", "Which color to use for the flashbang blind effect. Format: R G B. Default color is white (255 255 255).", CookieAccess_Public);
+
   RegConsoleCmd("sm_flashcolor", Command_FlashColor);
 
   g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
@@ -68,13 +71,16 @@ public void OnMapStart()
   g_iSpecBlindHint_Half = PrecacheModel(g_sTexture_SpectatorBlindHint_Half);
 }
 
+public void OnClientAuthorized(int client)
+{
+  GetClientFlashColor(client);
+}
+
 public void OnClientDisconnect(int client)
 {
   g_bIsForbiddenVision[client] = false;
   g_bWantsFlashbang[client] = false;
   g_bModifyCooldown[client] = false;
-
-  ResetClientFlashColor(client);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -149,4 +155,12 @@ public Action OnPlayerRunCmd(int client, int &buttons)
     g_sNadeType[g_bWantsFlashbang[client]]);
 
   return Plugin_Continue;
+}
+
+public void OnClientCookiesCached(int client)
+{
+  decl String:cookieBuffer[11];
+  GetClientCookie(client, g_hCookie_FlashColor, cookieBuffer, sizeof(cookieBuffer));
+
+  PrintToChatAll("Cookie cached for client %i! Value: %s", client, cookieBuffer);
 }

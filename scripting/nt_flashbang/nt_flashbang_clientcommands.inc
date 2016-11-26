@@ -11,17 +11,39 @@ public Action Command_FlashColor(int client, int args)
     return Plugin_Stop;
   }
 
-  decl String:sArg[4];
-  for (int i = 0; i < sizeof(g_iFlashColor[]); i++)
+  int rgb[3];
+  decl String:argBuffer[3];
+
+  // Convert the RGB args into numbers before
+  // passing them to the flashbang color cookie.
+  // This ensures the string based cookie will
+  // always hold sane RGB integers capped within
+  // the range 0-255. NaN will convert into a 0.
+  for (int i = 0; i < sizeof(rgb); i++)
   {
-    GetCmdArg(i + 1, sArg, sizeof(sArg));
-    g_iFlashColor[client][i] = StringToInt(sArg);
+    // n+1 because the 0th index holds the command itself
+    GetCmdArg(i + 1, argBuffer, sizeof(argBuffer));
+
+    int color = StringToInt(argBuffer);
+    // Cap within the RGB range
+    if (color < 0)
+    {
+      color = 0;
+    }
+    else if (color > 255)
+    {
+      color = 255;
+    }
+
+    rgb[i] = color;
   }
 
-  ReplyToCommand(client, "RBG: %i %i %i",
-    GetClientFlashColor(client, COLOR_R),
-    GetClientFlashColor(client, COLOR_G),
-    GetClientFlashColor(client, COLOR_B));
+  decl String:cookieBuffer[11];
+  Format(cookieBuffer, sizeof(cookieBuffer), "%i %i %i", rgb[0], rgb[1], rgb[2]);
+
+  SetClientCookie(client, g_hCookie_FlashColor, cookieBuffer);
+
+  ReplyToCommand(client, "RGB: %s", cookieBuffer);
 
   return Plugin_Handled;
 }

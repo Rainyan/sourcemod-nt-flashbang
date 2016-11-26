@@ -46,6 +46,8 @@ new const String:g_sNadeType[][] = {
   "FLASH"
 };
 
+Handle g_hCookie_FlashColor;
+
 Handle g_hCvar_Enabled;
 Handle g_hCvar_Mode;
 
@@ -126,10 +128,10 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   BfWriteShort(userMsg, 500); // Flash duration
   BfWriteShort(userMsg, resetDuration); // View reset duration (ms times 2??)
   BfWriteShort(userMsg, 0x0001); // Fade in flag
-  BfWriteByte(userMsg, GetClientFlashColor(client, COLOR_R)); // R
-  BfWriteByte(userMsg, GetClientFlashColor(client, COLOR_G)); // G
-  BfWriteByte(userMsg, GetClientFlashColor(client, COLOR_B)); // B
-  BfWriteByte(userMsg, alpha); // A
+  BfWriteByte(userMsg, g_iFlashColor[client][COLOR_R]);
+  BfWriteByte(userMsg, g_iFlashColor[client][COLOR_G]);
+  BfWriteByte(userMsg, g_iFlashColor[client][COLOR_B]);
+  BfWriteByte(userMsg, alpha);
   EndMessage();
 
   EmitSoundToClient(client,
@@ -299,15 +301,29 @@ bool IsAssault(int client)
   return true;
 }
 
-int GetClientFlashColor(int client, int channel)
+void GetClientFlashColor(int client)
 {
   if (!IsValidClient(client))
-    ThrowError("Invalid client %i");
+    return;
 
-  if (channel < COLOR_R || channel > COLOR_B)
-    ThrowError("Invalid RBG color channel %i", channel);
+  decl String:cookieBuffer[11];
+  GetClientCookie(client, g_hCookie_FlashColor, cookieBuffer, sizeof(cookieBuffer));
 
-  return g_iFlashColor[client][channel];
+  decl String:rgbBuffer[3][3];
+  ExplodeString(cookieBuffer, " ",
+    rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
+
+  for (int i = 0; i < sizeof(rgbBuffer); i++)
+  {
+    int color = StringToInt(rgbBuffer[i]);
+
+    if (color < 0)
+      color = 0;
+    else if (color > 255)
+      color = 255;
+
+    g_iFlashColor[client][i] = color;
+  }
 }
 
 void ResetClientFlashColor(int client)
