@@ -7,7 +7,7 @@
 #include "nt_flashbang/nt_flashbang_timers"
 #include "nt_flashbang/nt_flashbang_trace"
 
-#define PLUGIN_VERSION "0.3.3"
+#define PLUGIN_VERSION "0.3.4"
 
 public Plugin myinfo = {
   name = "NT Flashbangs",
