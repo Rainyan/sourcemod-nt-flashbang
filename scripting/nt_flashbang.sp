@@ -100,7 +100,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
   if (!GetConVarBool(g_hCvar_Enabled))
     return Plugin_Continue;
 
-  if (buttons & IN_VISION && g_bIsForbiddenVision[client])
+  if (buttons & IN_VISION == IN_VISION && g_bIsForbiddenVision[client])
   {
     SetPlayerVision(client, VISION_NONE);
     return Plugin_Continue;
