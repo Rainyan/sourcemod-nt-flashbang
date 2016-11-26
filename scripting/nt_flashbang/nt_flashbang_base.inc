@@ -11,6 +11,12 @@ enum {
   MODE_FREE_SWITCH
 };
 
+enum {
+  PITCH = 0,
+  YAW,
+  ROLL
+};
+
 int g_iExplosionMark;
 int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
@@ -191,7 +197,7 @@ void CheckIfFlashed(float[3] pos)
     // How many degrees turned away from flash,
     // 180 = completely turned, 0 = completely facing.
     // Angles over 180 get capped, eg. 181 -> 179.
-    for (int j = 0; j < 2; j++)
+    for (int j = PITCH; j < ROLL; j++)
     {
       if (angle[j] > 180)
       {
@@ -221,11 +227,11 @@ void CheckIfFlashed(float[3] pos)
     float bestPossibleDodge = 25.0;
 
     // Reduce flashedness based on dodge on X and Y axes
-    float flashAvoidance_Y = (angle[0] * basePercentile);
-    float flashAvoidance_X = (angle[1] * basePercentile);
+    float flashAvoidance_Y = (angle[PITCH] * basePercentile);
+    float flashAvoidance_X = (angle[YAW] * basePercentile);
 
-    //PrintToServer("Angles %f %f", angle[0], angle[1]);
-    if (angle[0] >= 75 || angle[1] >= 75)
+    //PrintToServer("Angles %f %f", angle[PITCH], angle[YAW]);
+    if (angle[PITCH] >= 75 || angle[YAW] >= 75)
     {
       //PrintToServer("Reducing from %f", flashedPercent);
       flashedPercent -= flashAvoidance_Y;
@@ -234,7 +240,7 @@ void CheckIfFlashed(float[3] pos)
     }
     else
     {
-      //PrintToServer("False, %f >= 90 || %f >= 90", angle[0], angle[1]);
+      //PrintToServer("False, %f >= 90 || %f >= 90", angle[PITCH], angle[YAW]);
     }
 
     // Cap final flash amount
@@ -257,11 +263,11 @@ void CheckIfFlashed(float[3] pos)
 
     /*
     PrintToConsole(i, "Eye %f %f - dir %f %f = %f %f",
-      eyeAngles[0], eyeAngles[1],
+      eyeAngles[PITCH], eyeAngles[YAW],
       vecDir[0], vecDir[1],
-      angle[0], angle[1]);
+      angle[PITCH], angle[YAW]);
 
-    PrintToChatAll("Angles: %f %f %f", angle[0], angle[1], angle[2])
+    PrintToChatAll("Angles: %f %f", angle[PITCH], angle[YAW])
 
     char clientName[MAX_NAME_LENGTH];
     GetClientName(i, clientName, sizeof(clientName));
