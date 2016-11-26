@@ -21,8 +21,8 @@ bool g_bModifyCooldown[MAXPLAYERS+1];
 bool g_bWantsFlashbang[MAXPLAYERS+1];
 
 new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
-new const String:g_sDecal_SpectatorBlindHint_Full[] = "vgui/hud/ctg/g_beacon_circle_filled";
-new const String:g_sDecal_SpectatorBlindHint_Half[] = "vgui/hud/ctg/g_beacon_circle";
+new const String:g_sDecal_SpectatorBlindHint_Full[] = "materials/vgui/hud/ctg/g_beacon_circle_filled";
+new const String:g_sDecal_SpectatorBlindHint_Half[] = "materials/vgui/hud/ctg/g_beacon_circle";
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
 

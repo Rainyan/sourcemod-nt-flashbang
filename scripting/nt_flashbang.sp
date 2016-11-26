@@ -53,8 +53,8 @@ public void OnMapStart()
   PrecacheSound(g_sFlashSound_Victim);
 
   g_iExplosionMark = PrecacheDecal(g_sDecal_ExplosionMark);
-  g_iSpecBlindHint_Full = PrecacheDecal(g_sDecal_SpectatorBlindHint_Full);
-  g_iSpecBlindHint_Half = PrecacheDecal(g_sDecal_SpectatorBlindHint_Half);
+  g_iSpecBlindHint_Full = PrecacheModel(g_sDecal_SpectatorBlindHint_Full);
+  g_iSpecBlindHint_Half = PrecacheModel(g_sDecal_SpectatorBlindHint_Half);
 }
 
 public void OnClientDisconnect(int client)
