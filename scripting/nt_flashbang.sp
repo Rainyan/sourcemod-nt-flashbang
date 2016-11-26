@@ -56,7 +56,6 @@ public void OnMapStart()
   // Decals precache
   g_iExplosionMark = PrecacheDecal(g_sDecal_ExplosionMark);
   // Models (textures) precache
-  g_iFlashGrain = PrecacheModel(g_sTexture_FlashGrain);
   g_iSpecBlindHint_Full = PrecacheModel(g_sTexture_SpectatorBlindHint_Full);
   g_iSpecBlindHint_Half = PrecacheModel(g_sTexture_SpectatorBlindHint_Half);
 }

@@ -18,7 +18,6 @@ enum {
 };
 
 int g_iExplosionMark;
-int g_iFlashGrain;
 int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
 
@@ -29,7 +28,6 @@ bool g_bModifyCooldown[MAXPLAYERS+1];
 bool g_bWantsFlashbang[MAXPLAYERS+1];
 
 new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
-new const String:g_sTexture_FlashGrain[] = "materials/console/backroundscan_wide.vtf";
 new const String:g_sTexture_SpectatorBlindHint_Full[] = "materials/vgui/hud/ctg/g_beacon_circle_filled.vmt";
 new const String:g_sTexture_SpectatorBlindHint_Half[] = "materials/vgui/hud/ctg/g_beacon_circle.vmt";
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
@@ -129,24 +127,7 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   EmitSoundToClient(client,
     g_sFlashSound_Victim, _, _, SNDLEVEL_NORMAL, _, volume, 200);
 
-  // Place a staticy effect in front of player view
-  //float grainPos[3];
-  //GetClientEyePosition(client, grainPos);
-  //grainPos[0] += 12;
-  // Static effect duration in seconds, should equal flash reset
-  float grainDuration = resetDuration / 500.0 + 1.0;
-  // Send to blindee
-  //TE_SetupGlowSprite(grainPos, g_iFlashGrain, 10.0, 15.0, 100);
-  //TE_SendToClient(client);
-  ClientCommand(client, "r_screenoverlay \"effects/tp_eyefx/tp_eyefx\"");
-  CreateTimer(grainDuration, Timer_Test, client);
-
   Spectators_ShowBlindHint(client, intensity);
-}
-
-public Action Timer_Test(Handle timer, int client)
-{
-  ClientCommand(client, "r_screenoverlay off");
 }
 
 // Purpose: Display a HUD hint over flashed player's head for spectators.
