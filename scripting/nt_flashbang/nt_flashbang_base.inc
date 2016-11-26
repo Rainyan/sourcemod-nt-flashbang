@@ -22,8 +22,8 @@ bool g_bModifyCooldown[MAXPLAYERS+1];
 bool g_bWantsFlashbang[MAXPLAYERS+1];
 
 new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
-new const String:g_sDecal_SpectatorBlindHint_Full[] = "materials/vgui/hud/ctg/g_beacon_circle_filled";
-new const String:g_sDecal_SpectatorBlindHint_Half[] = "materials/vgui/hud/ctg/g_beacon_circle";
+new const String:g_sDecal_SpectatorBlindHint_Full[] = "materials/vgui/hud/ctg/g_beacon_circle_filled.vmt";
+new const String:g_sDecal_SpectatorBlindHint_Half[] = "materials/vgui/hud/ctg/g_beacon_circle.vmt";
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
 
@@ -126,26 +126,22 @@ void BlindPlayer(int client, int intensity, int resetDuration)
 // Purpose: Display a HUD hint over flashed player's head for spectators.
 void Spectators_ShowBlindHint(int client, int intensity)
 {
-  return; // FIXME
+  //return; // FIXME
 
   if (!IsValidClient(client))
     return;
 
   float position[3];
-  GetClientEyeAngles(client, position);
+  GetClientEyePosition(client, position);
+  position[2] += 32;
 
-  TE_Start("GlowSprite");
-  TE_WriteVector("m_vecOrigin", position);
-  TE_WriteFloat("m_fScale", 1.0);
-  TE_WriteFloat("m_fLife", 3.5);
-  TE_WriteNum("m_nBrightness", 100);
   if (intensity < 100)
   {
-    TE_WriteNum("m_nModelIndex", g_iSpecBlindHint_Half);
+    TE_SetupGlowSprite(position, g_iSpecBlindHint_Half, 3.5, 0.1, 150);
   }
   else
   {
-    TE_WriteNum("m_nModelIndex", g_iSpecBlindHint_Full);
+    TE_SetupGlowSprite(position, g_iSpecBlindHint_Full, 3.5, 0.1, 150);
   }
 
   for (int i = 1; i <= MaxClients; i++)
@@ -154,7 +150,7 @@ void Spectators_ShowBlindHint(int client, int intensity)
       continue;
 
     int team = GetClientTeam(i);
-    if (team != TEAM_SPECTATOR)
+    if (IsPlayerAlive(i) || team != TEAM_SPECTATOR)
       continue;
 
     TE_SendToClient(i);
