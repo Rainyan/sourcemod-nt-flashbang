@@ -30,6 +30,7 @@ public Action Timer_Flashify(Handle timer, int entRef)
   // Remove the grenade
   AcceptEntityInput(entity, "kill");
 
+  // Create temp dynamic light for flash effect
   TE_Start("Dynamic Light");
   TE_WriteVector("m_vecOrigin", explosionPos);
   TE_WriteNum("r", 255);
