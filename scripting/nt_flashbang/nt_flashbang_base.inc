@@ -15,6 +15,7 @@ int g_iExplosionMark;
 int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
 
+bool g_bFirstLaunch = true;
 bool g_bCanModifyNade;
 bool g_bIsForbiddenVision[MAXPLAYERS+1];
 bool g_bModifyCooldown[MAXPLAYERS+1];

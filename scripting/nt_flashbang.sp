@@ -31,8 +31,9 @@ public void OnConfigsExecuted()
 {
   AutoExecConfig(true);
 
-  if (GetConVarBool(g_hCvar_Enabled))
+  if (g_bFirstLaunch && GetConVarBool(g_hCvar_Enabled))
   {
+    g_bFirstLaunch = false;
     HookEvent("game_round_start", Event_RoundStart);
   }
 
