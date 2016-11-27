@@ -14,12 +14,7 @@ enum {
 };
 
 enum {
-  SHADE_MONOCHROME,
-  SHADE_RED,
-  SHADE_GREEN,
-  SHADE_BLUE,
-  SHADE_YELLOW,
-  SHADE_BROWN,
+  SHADE_MONOCHROME = 0,
   SHADE_ENUM_COUNT
 }
 
@@ -36,110 +31,25 @@ enum {
 int g_iColor_Preset[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][RGB_ENUM_COUNT] = {
   // Monochrome
   {
-    { 255,  255,  255 },  // White
-    { 172,  172,  172 },  // Silver
-    { 140,  146,  172 },  // Cool gray
-    { 52,     52,   52  },  // Jet black
-    {  0,      0,    0  },  // Black
-  },
-  // Reds
-  {
-    { 150,    0,    24  },  // Carmine
-    { 255,    0,   127  },  // Rose
-    { 255,  192,   203  },  // Pink
-    { 218,  112,   214  },  // Orchid
-    { 224,  176,   255  },  // Mauve
-  },
-  // Greens
-  {
-    { 34,    139,     34  },  // Forest green
-    { 62,    180,    137  },  // Mint
-    { 57,    255,     20  },  // Neon green
-    {  0,    128,    128  },  // Teal
-    { 80,    220,    100  },  // Emerald
-  },
-  // Blues
-  {
-    {   0,   127,    255  },  // Azure
-    {   0,    49,     83  },  // Prussian blue
-    {  64,   130,    109  },  // Viridian
-    { 135,   206,    235  },  // Sky blue
-    { 204,   204,    255  },  // Periwinkle
-  },
-  // Yellows
-  {
-    { 258,    238,    0  },  // Aureolin
-    { 255,    215,    0  },  // Gold
-    { 128,    128,    0  },  // Olive
-    { 251,    206,  177  },  // Apricot
-    { 248,    222,  126  },  // Jasmine
-  },
-  // Browns
-  {
-    { 121,    68,    59  },  // Bole
-    { 123,    63,     0  },  // Chocolate
-    { 195,   176,   145  },  // Khaki
-    {  99,    81,    71  },  // Umber
-    { 133,   109,    77  },  // French bistre
-  },
+    { 223,  223,  223 },
+    { 255,  207, 207},
+    { 207,  255, 207},
+    { 207,  207, 255},
+    { 236,  236, 197},
+  }
 };
 
 new const String:g_sPreset_Shade[SHADE_ENUM_COUNT][] = {
   "Monochrome",
-  "Red",
-  "Green",
-  "Blue",
-  "Yellow",
-  "Brown",
 };
 
 new const String:g_sPreset_Color[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][] = {
   // Monochromes
   {
     "White",
-    "Silver",
-    "Cool gray",
-    "Jet black",
-    "Black",
-  },
-  // Reds
-  {
-    "Carmine",
-    "Rose",
-    "Pink",
-    "Orchid",
-    "Mauve",
-  },
-  // Greens
-  {
-    "Forest green",
-    "Mint",
-    "Neon green",
-    "Teal",
-    "Emerald",
-  },
-  // Blues
-  {
-    "Azure",
-    "Prussian blue",
-    "Viridian",
-    "Sky blue",
-    "Periwinkle",
-  },
-  // Browns
-  {
-    "Bole",
-    "Chocolate",
-    "Khaki",
-    "Umber",
-    "French bistre",
-  },
-  // Yellows
-  {
-    "Aureolin",
-    "Gold",
-    "Olive",
-    "Apricot",
-    "Jasmine",
+    "Red hue",
+    "Green hue",
+    "Blue hue",
+    "Yellow hue"
   },
 };
