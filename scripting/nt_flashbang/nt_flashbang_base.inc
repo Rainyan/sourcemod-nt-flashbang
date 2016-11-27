@@ -391,12 +391,22 @@ int CapRGBValue(int value)
 
 void PreviewFlash(int client)
 {
+  // Block command spam or overriding real flashes with this
+  if (g_bIsForbiddenVision[client])
+  {
+    PrintToChat(client, "[SM] Please wait.");
+    return;
+  }
+  g_bIsForbiddenVision[client] = true;
+
   int rgb[RGB_ENUM_COUNT];
   rgb = GetRGB(g_sFlashColor_Preset[g_iFlashPreview[client]][0]);
 
+  int resetDuration = 2000;
+
   Handle msgOut = StartMessageOne("Fade", client);
   BfWriteShort(msgOut, 500); // Flash duration
-  BfWriteShort(msgOut, 2000); // View reset duration (ms times 2??)
+  BfWriteShort(msgOut, resetDuration); // View reset duration (ms times 2??)
   BfWriteShort(msgOut, 0x0002); // Fade out flag
   BfWriteByte(msgOut, rgb[RGB_RED]);
   BfWriteByte(msgOut, rgb[RGB_GREEN]);
@@ -404,7 +414,9 @@ void PreviewFlash(int client)
   BfWriteByte(msgOut, 255);
   EndMessage();
 
-  CreateTimer(1.0, Timer_PreviewFlash_Remove, GetClientUserId(client));
+  int userid = GetClientUserId(client);
+  CreateTimer(0.25 + resetDuration / 500.0, Timer_AllowVision, userid);
+  CreateTimer(1.0, Timer_PreviewFlash_Remove, userid);
 
   PrintToChat(client, "[SM] Previewing %s (%i %i %i)",
     g_sFlashColor_Preset[g_iFlashPreview[client]][1],
