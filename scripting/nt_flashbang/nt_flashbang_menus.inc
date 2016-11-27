@@ -120,6 +120,22 @@ public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int 
   }
 }
 
+void ShowMenu_Color_Preset_Preview(int client)
+{
+  Panel panel = new Panel();
+  panel.SetTitle("Color preview");
+  panel.DrawText(" ");
+  panel.DrawText(g_sFlashColor_Preset[g_iFlashPreview[client]][1]);
+  panel.DrawText(g_sFlashColor_Preset[g_iFlashPreview[client]][0]);
+  panel.DrawText(" ");
+  panel.DrawItem("Preview flash effect");
+  panel.DrawItem("Save color");
+  panel.DrawText(" ");
+  panel.DrawItem("Back");
+  panel.Send(client, PanelHandler_Color_Preset_Preview, MENU_TIME_FOREVER);
+  delete panel;
+}
+
 public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, int choice)
 {
   if (action == MenuAction_End)
@@ -137,6 +153,37 @@ public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, in
     PrintToChat(client, "[SM] Sorry, something went wrong!");
     ThrowError("Client %i chose an invalid color enum %i", client, choice);
   }
+
+  g_iFlashPreview[client] = choice;
+  ShowMenu_Color_Preset_Preview(client);
+}
+
+public int PanelHandler_Color_Preset_Preview(Menu menu, MenuAction action, int client, int choice)
+{
+  if (action != MenuAction_Select)
+    return;
+
+  switch (choice)
+  {
+    case 1:
+    {
+      PreviewFlash(client);
+      ShowMenu_Color_Preset_Preview(client);
+    }
+    case 2:
+    {
+      ShowMenu_Color_Preset_Commit(client);
+    }
+    case 3:
+    {
+      ShowMenu_Color_Main(client);
+    }
+  }
+}
+
+void ShowMenu_Color_Preset_Commit(int client)
+{
+  int choice = g_iFlashPreview[client];
 
   // Explode RGB string
   decl String:rgbBuffer[RGB_ENUM_COUNT][4];

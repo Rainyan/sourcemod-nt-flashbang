@@ -166,17 +166,10 @@ public void OnClientCookiesCached(int client)
   // Get RGB color from client cookie, if one exists
   char colorBuffer[MAX_RGB_STRLEN];
   GetClientCookie(client, g_hCookie_FlashColor, colorBuffer, sizeof(colorBuffer));
+
   if (strlen(colorBuffer) > 0)
   {
-    decl String:rgbBuffer[RGB_ENUM_COUNT][4];
-    ExplodeString(colorBuffer, " ",
-      rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
-
-    for (int i = 0; i < sizeof(rgbBuffer); i++)
-    {
-      int color = CapRGBValue(StringToInt(rgbBuffer[i]));
-      g_iFlashColor[client][i] = color;
-    }
+    g_iFlashColor[client] = GetRGB(colorBuffer);
   }
   // Get RGB color name from client cookie, if one exists
   char colorNameBuffer[MAX_COLOR_STRLEN];

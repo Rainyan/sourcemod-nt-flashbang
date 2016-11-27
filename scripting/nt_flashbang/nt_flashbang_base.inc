@@ -44,6 +44,7 @@ int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
 
 int g_iFlashColor[MAXPLAYERS+1][3];
+int g_iFlashPreview[MAXPLAYERS+1];
 
 new const String:g_sFlashColor_Preset[COLOR_ENUM_COUNT][2][MAX_COLOR_STRLEN] = {
   { "255 255 255",  "White"         },
@@ -359,6 +360,21 @@ void ResetClientPreferences(int client, bool resetColorName = true)
   }
 }
 
+// Purpose: Convert a "<R> <G> <B>" string to integer array
+int[] GetRGB(const char[] sRGB)
+{
+  int rgb[RGB_ENUM_COUNT];
+  decl String:rgbBuffer[RGB_ENUM_COUNT][4];
+  ExplodeString(sRGB, " ", rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
+
+  for (int i = 0; i < sizeof(rgbBuffer); i++)
+  {
+    rgb[i] = CapRGBValue(StringToInt(rgbBuffer[i]));
+  }
+
+  return rgb;
+}
+
 int CapRGBValue(int value)
 {
   if (value < 0)
@@ -371,4 +387,28 @@ int CapRGBValue(int value)
   }
 
   return value;
+}
+
+void PreviewFlash(int client)
+{
+  int rgb[RGB_ENUM_COUNT];
+  rgb = GetRGB(g_sFlashColor_Preset[g_iFlashPreview[client]][0]);
+
+  Handle msgOut = StartMessageOne("Fade", client);
+  BfWriteShort(msgOut, 500); // Flash duration
+  BfWriteShort(msgOut, 2000); // View reset duration (ms times 2??)
+  BfWriteShort(msgOut, 0x0002); // Fade out flag
+  BfWriteByte(msgOut, rgb[RGB_RED]);
+  BfWriteByte(msgOut, rgb[RGB_GREEN]);
+  BfWriteByte(msgOut, rgb[RGB_BLUE]);
+  BfWriteByte(msgOut, 255);
+  EndMessage();
+
+  CreateTimer(1.0, Timer_PreviewFlash_Remove, GetClientUserId(client));
+
+  PrintToChat(client, "[SM] Previewing %s (%i %i %i)",
+    g_sFlashColor_Preset[g_iFlashPreview[client]][1],
+    rgb[RGB_RED],
+    rgb[RGB_GREEN],
+    rgb[RGB_BLUE]);
 }
