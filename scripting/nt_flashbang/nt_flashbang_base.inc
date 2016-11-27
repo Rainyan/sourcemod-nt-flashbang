@@ -145,7 +145,8 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   int userid = GetClientUserId(client);
   CreateTimer(0.25 + resetDuration / 500.0, Timer_AllowVision, userid);
 
-  int alpha = RoundToNearest(2.5 * intensity);
+  // 2.55 * 100 = full 255 alpha
+  int alpha = RoundToNearest(2.55 * intensity);
   if (alpha < 5)
     alpha = 5;
 
