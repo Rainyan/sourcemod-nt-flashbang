@@ -3,6 +3,8 @@
 #endif
 #define _base_included_
 
+#define PLUGIN_VERSION "0.3.4"
+
 #define FLASHBANG_FUSE 1.4
 
 #define MAX_RGB_STRLEN 12
@@ -70,6 +72,8 @@ new const String:g_sTexture_SpectatorBlindHint_Full[] = "materials/vgui/hud/ctg/
 new const String:g_sTexture_SpectatorBlindHint_Half[] = "materials/vgui/hud/ctg/g_beacon_circle.vmt";
 new const String:g_sFlashSound_Environment[] = "player/cx_fire.wav";
 new const String:g_sFlashSound_Victim[] = "weapons/hegrenade/frag_explode.wav";
+new const String:g_sMenuSound_Cancel[] = "buttons/combine_button7.wav";
+new const String:g_sMenuSound_OK[] = "buttons/button14.wav";
 
 new const String:g_sNadeType[][] = {
   "FRAG",

@@ -10,13 +10,16 @@ void ShowMenu_Main(int client)
 
   Panel panel = new Panel();
 
+  decl String:title[24];
+  Format(title, sizeof(title), "= Flashbangs (v%s) =", PLUGIN_VERSION);
+
   bool isEnabled = GetConVarBool(g_hCvar_Enabled);
   char status[][] = { "disabled", "enabled" };
-  decl String:enabledBuffer[24];
+  decl String:enabledBuffer[25];
   Format(enabledBuffer, sizeof(enabledBuffer), "Flashbangs are: %s",
     status[isEnabled]);
 
-  panel.SetTitle("Flashbang options");
+  panel.SetTitle(title);
   panel.DrawText(" ");
   panel.DrawText(enabledBuffer);
   panel.DrawText(" ");
@@ -35,13 +38,15 @@ public int PanelHandler_Main(Menu menu, MenuAction action, int client, int choic
 
   switch (choice)
   {
+    // Color menu
     case 1:
     {
+      EmitSoundToClient(client, g_sMenuSound_OK);
       ShowMenu_Color_Main(client);
     }
-    case 2:
+    case 10:
     {
-
+      EmitSoundToClient(client, g_sMenuSound_Cancel);
     }
   }
 }
@@ -80,6 +85,8 @@ void ShowMenu_Color_Preset(int client)
     ThrowError("Client %i is invalid or a bot.");
 
   Menu menu = new Menu(MenuHandler_Color_Preset);
+  menu.ExitButton = false;
+  menu.ExitBackButton = true;
 
   menu.SetTitle("Choose flashbang color:");
   for (int i = 0; i < COLOR_ENUM_COUNT; i++)
@@ -143,6 +150,11 @@ public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, in
     delete menu;
     return;
   }
+  else if (action == MenuAction_Cancel && choice == MenuCancel_ExitBack)
+  {
+    ShowMenu_Color_Main(client);
+    return;
+  }
   else if (action != MenuAction_Select)
   {
     return;
@@ -165,17 +177,26 @@ public int PanelHandler_Color_Preset_Preview(Menu menu, MenuAction action, int c
 
   switch (choice)
   {
+    // Preview flash color
     case 1:
     {
+      if (!g_bIsForbiddenVision[client])
+      {
+        EmitSoundToClient(client, g_sMenuSound_OK);
+      }
       PreviewFlash(client);
       ShowMenu_Color_Preset_Preview(client);
     }
+    // Commit flash color change
     case 2:
     {
+      EmitSoundToClient(client, g_sMenuSound_OK);
       ShowMenu_Color_Preset_Commit(client);
     }
+    // Go back
     case 3:
     {
+      EmitSoundToClient(client, g_sMenuSound_Cancel);
       ShowMenu_Color_Main(client);
     }
   }
@@ -221,6 +242,7 @@ void ShowMenu_Color_Manual(int client)
   panel.DrawText("For example: sm_flash_rgb 142 59 89 \"Quinacridone Magenta\"");
   panel.DrawText(" ");
 
+  panel.CurrentKey = 8;
   panel.DrawItem("Back");
 
   panel.Send(client, PanelHandler_Color_Manual, MENU_TIME_FOREVER);
@@ -232,5 +254,6 @@ public int PanelHandler_Color_Manual(Menu menu, MenuAction action, int client, i
   if (action != MenuAction_Select)
     return;
 
+  EmitSoundToClient(client, g_sMenuSound_Cancel);
   ShowMenu_Color_Main(client);
 }

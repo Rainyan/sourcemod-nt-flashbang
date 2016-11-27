@@ -10,8 +10,6 @@
 #include "nt_flashbang/nt_flashbang_timers"
 #include "nt_flashbang/nt_flashbang_trace"
 
-#define PLUGIN_VERSION "0.3.4"
-
 public Plugin myinfo = {
   name = "NT Flashbangs",
   description = "Replace HE grenades with flashbangs. Experimental.",
@@ -38,6 +36,8 @@ public void OnPluginStart()
   for (int i = 1; i <= MaxClients; i++)
   {
     ResetClientPreferences(i, false);
+    if (IsValidClient(i) && !IsFakeClient(i) && IsClientAuthorized(i))
+      OnClientCookiesCached(i);
   }
 }
 
@@ -67,6 +67,8 @@ public void OnMapStart()
   // Sound precache
   PrecacheSound(g_sFlashSound_Environment);
   PrecacheSound(g_sFlashSound_Victim);
+  PrecacheSound(g_sMenuSound_Cancel);
+  PrecacheSound(g_sMenuSound_OK);
   // Decals precache
   g_iExplosionMark = PrecacheDecal(g_sDecal_ExplosionMark);
   // Models (textures) precache
