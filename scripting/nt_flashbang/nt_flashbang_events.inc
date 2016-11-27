@@ -1,7 +1,7 @@
-#if defined _events_included_
+#if defined _flashbangs_events_included_
   #endinput
 #endif
-#define _events_included_
+#define _flashbangs_events_included_
 
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {

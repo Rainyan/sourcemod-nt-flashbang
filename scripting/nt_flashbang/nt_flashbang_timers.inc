@@ -1,7 +1,7 @@
-#if defined _timers_included_
+#if defined _flashbangs_timers_included_
   #endinput
 #endif
-#define _timers_included_
+#define _flashbangs_timers_included_
 
 // Purpose: Prevent nade switching after spawn freezetime, if desired
 public Action Timer_CanModifyNade_Revoke(Handle timer)

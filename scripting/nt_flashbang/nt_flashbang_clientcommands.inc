@@ -1,7 +1,7 @@
-#if defined _clientcommands_included_
+#if defined _flashbangs_clientcommands_included_
   #endinput
 #endif
-#define _clientcommands_included_
+#define _flashbangs_clientcommands_included_
 
 public Action Command_FlashMenu(int client, int args)
 {

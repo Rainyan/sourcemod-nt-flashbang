@@ -1,7 +1,7 @@
-#if defined _base_included_
+#if defined _flashbangs_base_included_
   #endinput
 #endif
-#define _base_included_
+#define _flashbangs_base_included_
 
 #define PLUGIN_VERSION "0.3.4"
 

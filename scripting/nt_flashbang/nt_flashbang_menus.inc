@@ -1,7 +1,7 @@
-#if defined _menus_included_
+#if defined _flashbangs_menus_included_
   #endinput
 #endif
-#define _menus_included_
+#define _flashbangs_menus_included_
 
 void ShowMenu_Main(int client)
 {

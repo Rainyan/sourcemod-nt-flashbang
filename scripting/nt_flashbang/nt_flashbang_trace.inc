@@ -1,7 +1,7 @@
-#if defined _trace_included_
+#if defined _flashbangs_trace_included_
   #endinput
 #endif
-#define _trace_included_
+#define _flashbangs_trace_included_
 
 bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
 {
