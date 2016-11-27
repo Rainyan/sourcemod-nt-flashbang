@@ -74,19 +74,37 @@ public Action Timer_AllowVision(Handle timer, int userid)
 
 // Purpose: Wait before fading away when
 // previewing colors for a smoother fade in/out
-public Action Timer_PreviewFlash_Remove(Handle timer, int userid)
+public Action Timer_PreviewFlash_Remove(Handle timer, DataPack pack)
 {
+  pack.Reset();
+  int userid = pack.ReadCell();
+  bool previewCurrent = pack.ReadCell();
+  delete pack;
+
   int client = GetClientOfUserId(userid);
   if (!IsValidClient(client))
     return Plugin_Stop;
+
+  int rgb[RGB_ENUM_COUNT];
+
+  if (previewCurrent)
+  {
+    char rgbBuffer[MAX_RGB_STRLEN];
+    GetClientCookie(client, g_hCookie_FlashColor, rgbBuffer, sizeof(rgbBuffer));
+    rgb = GetRGB(rgbBuffer);
+  }
+  else
+  {
+    rgb = g_iColor_Preset[g_iFlashPreview[client]];
+  }
 
   Handle msgIn = StartMessageOne("Fade", client);
   BfWriteShort(msgIn, 500); // Flash duration
   BfWriteShort(msgIn, 2000); // View reset duration (ms times 2??)
   BfWriteShort(msgIn, 0x0001); // Fade in flag
-  BfWriteByte(msgIn, g_iColor_Preset[g_iFlashPreview[client]][RGB_RED]);
-  BfWriteByte(msgIn, g_iColor_Preset[g_iFlashPreview[client]][RGB_GREEN]);
-  BfWriteByte(msgIn, g_iColor_Preset[g_iFlashPreview[client]][RGB_BLUE]);
+  BfWriteByte(msgIn, rgb[RGB_RED]);
+  BfWriteByte(msgIn, rgb[RGB_GREEN]);
+  BfWriteByte(msgIn, rgb[RGB_BLUE]);
   BfWriteByte(msgIn, 255);
   EndMessage();
 

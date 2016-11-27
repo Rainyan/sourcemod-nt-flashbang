@@ -54,6 +54,7 @@ void ShowMenu_Color_Main(int client)
   menu.SetTitle(colorTitle);
   menu.AddItem("preset", "Choose new color");
   menu.AddItem("manual", "Manually set color RGB");
+  menu.AddItem("preview", "Preview current color");
   menu.ExitButton = false;
   menu.ExitBackButton = true
   menu.Display(client, MENU_TIME_FOREVER);
@@ -186,6 +187,11 @@ public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int 
   else if (choice == 1)
   {
     ShowMenu_Color_Manual(client);
+  }
+  else if (choice == 2)
+  {
+    PreviewFlash(client, true);
+    ShowMenu_Color_Main(client);
   }
   else
   {

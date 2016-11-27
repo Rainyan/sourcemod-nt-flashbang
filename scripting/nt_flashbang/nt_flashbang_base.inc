@@ -29,6 +29,9 @@ enum {
   RGB_ENUM_COUNT
 };
 
+// Custom index is special and has to be -1,
+// other enums can be moved around as long
+// as the color array entries correspond to them.
 enum {
   COLOR_WHITE = 0,
   COLOR_BLACK,
@@ -406,7 +409,7 @@ int CapRGBValue(int value)
   return value;
 }
 
-void PreviewFlash(int client)
+void PreviewFlash(int client, bool:previewCurrent = false)
 {
   // Block command spam or overriding real flashes with this
   if (g_bIsForbiddenVision[client])
@@ -417,10 +420,25 @@ void PreviewFlash(int client)
   g_bIsForbiddenVision[client] = true;
 
   int rgb[RGB_ENUM_COUNT];
-  rgb = g_iColor_Preset[g_iFlashPreview[client]];
+  char colorName[MAX_COLOR_STRLEN];
+
+  if (previewCurrent)
+  {
+    char rgbBuffer[MAX_RGB_STRLEN];
+    GetClientCookie(client, g_hCookie_FlashColor, rgbBuffer, sizeof(rgbBuffer));
+    rgb = GetRGB(rgbBuffer);
+
+    GetClientCookie(client, g_hCookie_FlashColorName, colorName, sizeof(colorName));
+  }
+  else
+  {
+    rgb = g_iColor_Preset[g_iFlashPreview[client]];
+
+    strcopy(colorName, sizeof(colorName),
+      g_sColorName_Preset[g_iFlashPreview[client]]);
+  }
 
   int resetDuration = 2000;
-
   Handle msgOut = StartMessageOne("Fade", client);
   BfWriteShort(msgOut, 500); // Flash duration
   BfWriteShort(msgOut, resetDuration); // View reset duration (ms times 2??)
@@ -432,11 +450,16 @@ void PreviewFlash(int client)
   EndMessage();
 
   int userid = GetClientUserId(client);
+
+  DataPack pack = new DataPack();
+  pack.WriteCell(userid);
+  pack.WriteCell(previewCurrent);
+
   CreateTimer(0.25 + resetDuration / 500.0, Timer_AllowVision, userid);
-  CreateTimer(1.0, Timer_PreviewFlash_Remove, userid);
+  CreateTimer(1.0, Timer_PreviewFlash_Remove, pack);
 
   PrintToChat(client, "[SM] Previewing %s (%i %i %i)",
-    g_sColorName_Preset[g_iFlashPreview[client]],
+    colorName,
     rgb[RGB_RED],
     rgb[RGB_GREEN],
     rgb[RGB_BLUE]);
