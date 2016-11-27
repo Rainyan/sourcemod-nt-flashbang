@@ -3,6 +3,7 @@
 #include <sdkhooks>
 #include <sdktools>
 #include <neotokyo>
+#include "nt_flashbang/nt_flashbang_colors"
 #include "nt_flashbang/nt_flashbang_base"
 #include "nt_flashbang/nt_flashbang_clientcommands"
 #include "nt_flashbang/nt_flashbang_events"

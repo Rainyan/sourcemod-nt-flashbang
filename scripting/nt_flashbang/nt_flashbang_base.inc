@@ -7,9 +7,6 @@
 
 #define FLASHBANG_FUSE 1.4
 
-#define MAX_RGB_STRLEN 12
-#define MAX_COLOR_STRLEN 24
-
 enum {
   MODE_FORCE_FLASH = 1,
   MODE_SPAWN_PICK,
@@ -22,55 +19,12 @@ enum {
   ROLL
 };
 
-enum {
-  RGB_RED = 0,
-  RGB_GREEN,
-  RGB_BLUE,
-  RGB_ENUM_COUNT
-};
-
-enum {
-  COLOR_WHITE = 0,
-  COLOR_BLACK,
-  COLOR_PINK,
-  COLOR_PINK_LIGHT,
-  COLOR_YELLOW,
-  COLOR_YELLOW_LIGHT,
-  COLOR_AQUA,
-  COLOR_AQUA_LIGHT,
-  COLOR_ENUM_COUNT
-};
-
 int g_iExplosionMark;
 int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
 
 int g_iFlashColor[MAXPLAYERS+1][3];
 int g_iFlashPreview[MAXPLAYERS+1];
-
-// NOTE: These must match the COLOR enum
-int g_iColor_Preset[COLOR_ENUM_COUNT][RGB_ENUM_COUNT] = {
-  { 255,  255,  255 },
-  { 0,    0,    0   },
-  { 255,  127,  255 },
-  { 255,  170,  255 },
-  { 255,  255,  127 },
-  { 255,  255,  170 },
-  { 127,  255,  255 },
-  { 170,  255,  255 },
-};
-
-// NOTE: These must match the COLOR enum
-new const String:g_sColorName_Preset[COLOR_ENUM_COUNT][MAX_COLOR_STRLEN] = {
-  "White",
-  "Black",
-  "Pink",
-  "Light Pink",
-  "Yellow",
-  "Light Yellow",
-  "Aqua",
-  "Light Aqua",
-};
 
 bool g_bFirstLaunch = true;
 bool g_bCanModifyNade;
