@@ -48,15 +48,28 @@ int g_iSpecBlindHint_Half;
 int g_iFlashColor[MAXPLAYERS+1][3];
 int g_iFlashPreview[MAXPLAYERS+1];
 
-new const String:g_sFlashColor_Preset[COLOR_ENUM_COUNT][2][MAX_COLOR_STRLEN] = {
-  { "255 255 255",  "White"         },
-  { "0 0 0",        "Black"         },
-  { "255 127 255",  "Pink"          },
-  { "255 170 255",  "Light Pink"    },
-  { "255 255 127",  "Yellow"        },
-  { "255 255 170",  "Light Yellow"  },
-  { "127 255 255",  "Aqua"          },
-  { "170 255 255",  "Light Aqua"    },
+// NOTE: These must match the COLOR enum
+int g_iColor_Preset[COLOR_ENUM_COUNT][RGB_ENUM_COUNT] = {
+  { 255,  255,  255 },
+  { 0,    0,    0   },
+  { 255,  127,  255 },
+  { 255,  170,  255 },
+  { 255,  255,  127 },
+  { 255,  255,  170 },
+  { 127,  255,  255 },
+  { 170,  255,  255 },
+};
+
+// NOTE: These must match the COLOR enum
+new const String:g_sColorName_Preset[COLOR_ENUM_COUNT][MAX_COLOR_STRLEN] = {
+  "White",
+  "Black",
+  "Pink",
+  "Light Pink",
+  "Yellow",
+  "Light Yellow",
+  "Aqua",
+  "Light Aqua",
 };
 
 bool g_bFirstLaunch = true;
@@ -404,7 +417,7 @@ void PreviewFlash(int client)
   g_bIsForbiddenVision[client] = true;
 
   int rgb[RGB_ENUM_COUNT];
-  rgb = GetRGB(g_sFlashColor_Preset[g_iFlashPreview[client]][0]);
+  rgb = g_iColor_Preset[g_iFlashPreview[client]];
 
   int resetDuration = 2000;
 
@@ -423,7 +436,7 @@ void PreviewFlash(int client)
   CreateTimer(1.0, Timer_PreviewFlash_Remove, userid);
 
   PrintToChat(client, "[SM] Previewing %s (%i %i %i)",
-    g_sFlashColor_Preset[g_iFlashPreview[client]][1],
+    g_sColorName_Preset[g_iFlashPreview[client]],
     rgb[RGB_RED],
     rgb[RGB_GREEN],
     rgb[RGB_BLUE]);

@@ -91,7 +91,7 @@ void ShowMenu_Color_Preset(int client)
   menu.SetTitle("Choose flashbang color:");
   for (int i = 0; i < COLOR_ENUM_COUNT; i++)
   {
-    menu.AddItem("color", g_sFlashColor_Preset[i][1]);
+    menu.AddItem("color", g_sColorName_Preset[i]);
   }
   menu.Display(client, MENU_TIME_FOREVER);
 }
@@ -129,11 +129,17 @@ public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int 
 
 void ShowMenu_Color_Preset_Preview(int client)
 {
+  decl String:colorBuffer[MAX_COLOR_STRLEN];
+  Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
+    g_iColor_Preset[g_iFlashPreview[client]][RGB_RED],
+    g_iColor_Preset[g_iFlashPreview[client]][RGB_GREEN],
+    g_iColor_Preset[g_iFlashPreview[client]][RGB_BLUE]);
+
   Panel panel = new Panel();
   panel.SetTitle("Color preview");
   panel.DrawText(" ");
-  panel.DrawText(g_sFlashColor_Preset[g_iFlashPreview[client]][1]);
-  panel.DrawText(g_sFlashColor_Preset[g_iFlashPreview[client]][0]);
+  panel.DrawText(g_sColorName_Preset[g_iFlashPreview[client]]);
+  panel.DrawText(colorBuffer);
   panel.DrawText(" ");
   panel.DrawItem("Preview flash effect");
   panel.DrawItem("Save color");
@@ -206,22 +212,19 @@ void ShowMenu_Color_Preset_Commit(int client)
 {
   int choice = g_iFlashPreview[client];
 
-  // Explode RGB string
-  decl String:rgbBuffer[RGB_ENUM_COUNT][4];
-  ExplodeString(g_sFlashColor_Preset[choice][0], " ",
-    rgbBuffer, RGB_ENUM_COUNT, sizeof(rgbBuffer[]));
-  // Store as integers
-  for (int i = 0; i < RGB_ENUM_COUNT; i++)
-  {
-    g_iFlashColor[client][i] = StringToInt(rgbBuffer[i]);
-  }
+  // Convert RGB to string for cookie
+  decl String:colorBuffer[MAX_COLOR_STRLEN];
+  Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
+    g_iColor_Preset[choice][RGB_RED],
+    g_iColor_Preset[choice][RGB_GREEN],
+    g_iColor_Preset[choice][RGB_BLUE]);
+
   // Store preset color name
-  strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]),
-    g_sFlashColor_Preset[choice][1]);
+  strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), g_sColorName_Preset[choice]);
 
   // Store as cookies
-  SetClientCookie(client, g_hCookie_FlashColor, g_sFlashColor_Preset[choice][0]);
-  SetClientCookie(client, g_hCookie_FlashColorName, g_sFlashColor_Preset[choice][1]);
+  SetClientCookie(client, g_hCookie_FlashColor, colorBuffer);
+  SetClientCookie(client, g_hCookie_FlashColorName, g_sFlashColorName[client]);
 
   PrintToChat(client, "[SM] Flashbang color set to %s.", g_sFlashColorName[client]);
   ShowMenu_Color_Main(client);

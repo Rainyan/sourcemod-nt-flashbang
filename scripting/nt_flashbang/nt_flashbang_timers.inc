@@ -80,16 +80,13 @@ public Action Timer_PreviewFlash_Remove(Handle timer, int userid)
   if (!IsValidClient(client))
     return Plugin_Stop;
 
-  int rgb[RGB_ENUM_COUNT];
-  rgb = GetRGB(g_sFlashColor_Preset[g_iFlashPreview[client]][0]);
-
   Handle msgIn = StartMessageOne("Fade", client);
   BfWriteShort(msgIn, 500); // Flash duration
   BfWriteShort(msgIn, 2000); // View reset duration (ms times 2??)
   BfWriteShort(msgIn, 0x0001); // Fade in flag
-  BfWriteByte(msgIn, rgb[RGB_RED]);
-  BfWriteByte(msgIn, rgb[RGB_GREEN]);
-  BfWriteByte(msgIn, rgb[RGB_BLUE]);
+  BfWriteByte(msgIn, g_iColor_Preset[g_iFlashPreview[client]][RGB_RED]);
+  BfWriteByte(msgIn, g_iColor_Preset[g_iFlashPreview[client]][RGB_GREEN]);
+  BfWriteByte(msgIn, g_iColor_Preset[g_iFlashPreview[client]][RGB_BLUE]);
   BfWriteByte(msgIn, 255);
   EndMessage();
 
