@@ -25,11 +25,33 @@ enum {
   RGB_ENUM_COUNT
 };
 
+enum {
+  COLOR_WHITE = 0,
+  COLOR_BLACK,
+  COLOR_PINK,
+  COLOR_PINK_LIGHT,
+  COLOR_YELLOW,
+  COLOR_YELLOW_LIGHT,
+  COLOR_AQUA,
+  COLOR_AQUA_LIGHT
+};
+
 int g_iExplosionMark;
 int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
 
 int g_iFlashColor[MAXPLAYERS+1][3];
+
+new const String:g_sFlashColor_Preset[] = {
+  "255 255 255", // white
+  "0 0 0", // black
+  "255 127 255", // pink
+  "255 170 255", // light pink
+  "255 255 127", // yellow
+  "255 255 170", // light yellow
+  "127 255 255", // aqua
+  "170 255 255" // light aqua
+};
 
 bool g_bFirstLaunch = true;
 bool g_bCanModifyNade;
@@ -311,6 +333,9 @@ void GetClientFlashColor(int client)
   OnClientCookiesCached(client);
 }
 
+// Purpose: Reset flash color for client index.
+// Color is reset back to default white, in case the
+// player has no color cookie set or it can't be read.
 void ResetClientFlashColor(int client)
 {
   if (client < 1 || client > MaxClients)
