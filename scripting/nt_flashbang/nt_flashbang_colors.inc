@@ -24,6 +24,7 @@ enum {
   COLOR_3,
   COLOR_4,
   COLOR_5,
+  COLOR_6,
   COLOR_ENUM_COUNT
 };
 
@@ -36,6 +37,7 @@ int g_iColor_Preset[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][RGB_ENUM_COUNT] = {
     { 207,  255, 207},
     { 207,  207, 255},
     { 236,  236, 197},
+    { 236,  197, 236},
   }
 };
 
@@ -50,6 +52,7 @@ new const String:g_sPreset_Color[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][] = {
     "Red hue",
     "Green hue",
     "Blue hue",
-    "Yellow hue"
+    "Yellow hue",
+    "Pink hue",
   },
 };
