@@ -29,9 +29,6 @@ enum {
   RGB_ENUM_COUNT
 };
 
-// Custom index is special and has to be -1,
-// other enums can be moved around as long
-// as the color array entries correspond to them.
 enum {
   COLOR_WHITE = 0,
   COLOR_BLACK,
