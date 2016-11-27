@@ -4,7 +4,9 @@
 #define _base_included_
 
 #define FLASHBANG_FUSE 1.4
+
 #define MAX_RGB_STRLEN 12
+#define MAX_COLOR_STRLEN 24
 
 enum {
   MODE_FORCE_FLASH = 1,
@@ -33,7 +35,8 @@ enum {
   COLOR_YELLOW,
   COLOR_YELLOW_LIGHT,
   COLOR_AQUA,
-  COLOR_AQUA_LIGHT
+  COLOR_AQUA_LIGHT,
+  COLOR_ENUM_COUNT
 };
 
 int g_iExplosionMark;
@@ -42,15 +45,15 @@ int g_iSpecBlindHint_Half;
 
 int g_iFlashColor[MAXPLAYERS+1][3];
 
-new const String:g_sFlashColor_Preset[] = {
-  "255 255 255", // white
-  "0 0 0", // black
-  "255 127 255", // pink
-  "255 170 255", // light pink
-  "255 255 127", // yellow
-  "255 255 170", // light yellow
-  "127 255 255", // aqua
-  "170 255 255" // light aqua
+new const String:g_sFlashColor_Preset[COLOR_ENUM_COUNT][2][MAX_COLOR_STRLEN] = {
+  { "255 255 255",  "White"         },
+  { "0 0 0",        "Black"         },
+  { "255 127 255",  "Pink"          },
+  { "255 170 255",  "Light Pink"    },
+  { "255 255 127",  "Yellow"        },
+  { "255 255 170",  "Light Yellow"  },
+  { "127 255 255",  "Aqua"          },
+  { "170 255 255",  "Light Aqua"    },
 };
 
 bool g_bFirstLaunch = true;
@@ -58,6 +61,8 @@ bool g_bCanModifyNade;
 bool g_bIsForbiddenVision[MAXPLAYERS+1];
 bool g_bModifyCooldown[MAXPLAYERS+1];
 bool g_bWantsFlashbang[MAXPLAYERS+1];
+
+char g_sFlashColorName[MAXPLAYERS+1][MAX_COLOR_STRLEN];
 
 new const String:g_sDecal_ExplosionMark[] = "decals/scorchfademodel";
 new const String:g_sTexture_SpectatorBlindHint_Full[] = "materials/vgui/hud/ctg/g_beacon_circle_filled.vmt";
