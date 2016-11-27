@@ -86,6 +86,9 @@ public Action Timer_PreviewFlash_Remove(Handle timer, DataPack pack)
   if (!IsValidClient(client))
     return Plugin_Stop;
 
+  int shade = g_iShadeHolder[client];
+  int color = g_iColorHolder[client];
+
   int rgb[RGB_ENUM_COUNT];
 
   if (previewCurrent)
@@ -96,7 +99,7 @@ public Action Timer_PreviewFlash_Remove(Handle timer, DataPack pack)
   }
   else
   {
-    rgb = g_iColor_Preset[g_iFlashPreview[client]];
+    rgb = g_iColor_Preset[shade][color];
   }
 
   Handle msgIn = StartMessageOne("Fade", client);

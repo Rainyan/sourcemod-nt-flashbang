@@ -24,7 +24,9 @@ int g_iSpecBlindHint_Full;
 int g_iSpecBlindHint_Half;
 
 int g_iFlashColor[MAXPLAYERS+1][3];
-int g_iFlashPreview[MAXPLAYERS+1];
+
+int g_iShadeHolder[MAXPLAYERS+1];
+int g_iColorHolder[MAXPLAYERS+1];
 
 bool g_bFirstLaunch = true;
 bool g_bCanModifyNade;
@@ -383,10 +385,13 @@ void PreviewFlash(int client, bool:previewCurrent = false)
   }
   else
   {
-    rgb = g_iColor_Preset[g_iFlashPreview[client]];
+    int shade = g_iShadeHolder[client];
+    int color = g_iColorHolder[client];
+
+    rgb = g_iColor_Preset[shade][color];
 
     strcopy(colorName, sizeof(colorName),
-      g_sColorName_Preset[g_iFlashPreview[client]]);
+      g_sPreset_Color[shade][color]);
   }
 
   int resetDuration = 2000;

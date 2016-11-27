@@ -52,7 +52,7 @@ void ShowMenu_Color_Main(int client)
   }
 
   menu.SetTitle(colorTitle);
-  menu.AddItem("preset", "Choose new color");
+  menu.AddItem("shade", "Choose new color");
   menu.AddItem("manual", "Manually set color RGB");
   menu.AddItem("preview", "Preview current color");
   menu.ExitButton = false;
@@ -69,26 +69,66 @@ void ShowMenu_Color_Preset(int client)
   menu.ExitButton = false;
   menu.ExitBackButton = true;
 
+  int shade = g_iShadeHolder[client];
+
   menu.SetTitle("Choose flashbang color:");
   for (int i = 0; i < COLOR_ENUM_COUNT; i++)
   {
-    menu.AddItem("color", g_sColorName_Preset[i]);
+    menu.AddItem("shade", g_sPreset_Color[shade][i]);
+  }
+  menu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int MenuHandler_Shade_Preset(Menu menu, MenuAction action, int client, int choice)
+{
+  if (action == MenuAction_End)
+  {
+    delete menu;
+    return;
+  }
+  else if (action == MenuAction_Cancel && choice == MenuCancel_ExitBack)
+  {
+    ShowMenu_Main(client);
+    return;
+  }
+  else if (action != MenuAction_Select)
+  {
+    return;
+  }
+
+  g_iShadeHolder[client] = choice;
+  ShowMenu_Color_Preset(client);
+}
+
+void ShowMenu_Shade_Preset(int client)
+{
+  Menu menu = new Menu(MenuHandler_Shade_Preset);
+  menu.ExitButton = false;
+  menu.ExitBackButton = true;
+
+  menu.SetTitle("Choose color group:");
+  for (int i = 0; i < SHADE_ENUM_COUNT; i++)
+  {
+    menu.AddItem("color", g_sPreset_Shade[i]);
   }
   menu.Display(client, MENU_TIME_FOREVER);
 }
 
 void ShowMenu_Color_Preset_Preview(int client)
 {
+  int shade = g_iShadeHolder[client];
+  int color = g_iColorHolder[client];
+
   decl String:colorBuffer[MAX_COLOR_STRLEN];
   Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
-    g_iColor_Preset[g_iFlashPreview[client]][RGB_RED],
-    g_iColor_Preset[g_iFlashPreview[client]][RGB_GREEN],
-    g_iColor_Preset[g_iFlashPreview[client]][RGB_BLUE]);
+    g_iColor_Preset[shade][color][RGB_RED],
+    g_iColor_Preset[shade][color][RGB_GREEN],
+    g_iColor_Preset[shade][color][RGB_BLUE]);
 
   Panel panel = new Panel();
   panel.SetTitle("Color preview");
   panel.DrawText(" ");
-  panel.DrawText(g_sColorName_Preset[g_iFlashPreview[client]]);
+  panel.DrawText(g_sPreset_Color[shade][color]);
   panel.DrawText(colorBuffer);
   panel.DrawText(" ");
   panel.DrawItem("Preview flash effect");
@@ -101,17 +141,19 @@ void ShowMenu_Color_Preset_Preview(int client)
 
 void ShowMenu_Color_Preset_Commit(int client)
 {
-  int choice = g_iFlashPreview[client];
+  int shade = g_iShadeHolder[client];
+  int color = g_iColorHolder[client];
 
   // Convert RGB to string for cookie
   decl String:colorBuffer[MAX_COLOR_STRLEN];
   Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
-    g_iColor_Preset[choice][RGB_RED],
-    g_iColor_Preset[choice][RGB_GREEN],
-    g_iColor_Preset[choice][RGB_BLUE]);
+    g_iColor_Preset[shade][color][RGB_RED],
+    g_iColor_Preset[shade][color][RGB_GREEN],
+    g_iColor_Preset[shade][color][RGB_BLUE]);
 
-  // Store preset color name
-  strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), g_sColorName_Preset[choice]);
+  // Store variables
+  strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), g_sPreset_Color[shade][color]);
+  g_iFlashColor[client] = g_iColor_Preset[shade][color];
 
   // Store as cookies
   SetClientCookie(client, g_hCookie_FlashColor, colorBuffer);
@@ -182,7 +224,7 @@ public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int 
 
   if (choice == 0)
   {
-    ShowMenu_Color_Preset(client);
+    ShowMenu_Shade_Preset(client);
   }
   else if (choice == 1)
   {
@@ -208,7 +250,7 @@ public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, in
   }
   else if (action == MenuAction_Cancel && choice == MenuCancel_ExitBack)
   {
-    ShowMenu_Color_Main(client);
+    ShowMenu_Shade_Preset(client);
     return;
   }
   else if (action != MenuAction_Select)
@@ -222,7 +264,7 @@ public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, in
     ThrowError("Client %i chose an invalid color enum %i", client, choice);
   }
 
-  g_iFlashPreview[client] = choice;
+  g_iColorHolder[client] = choice;
   ShowMenu_Color_Preset_Preview(client);
 }
 

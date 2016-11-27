@@ -15,11 +15,6 @@ public Action Command_FlashMenu(int client, int args)
   return Plugin_Handled;
 }
 
-public int ColorMenu(Menu menu, MenuAction action, int client, int choice)
-{
-  return;
-}
-
 public Action Command_FlashRGB(int client, int args)
 {
   if (args != RGB_ENUM_COUNT && args != RGB_ENUM_COUNT + 1)
