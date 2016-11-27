@@ -22,7 +22,8 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
-  g_hCookie_FlashColor = RegClientCookie("nt_flashbang_color", "Which color to use for the flashbang blind effect. Format: R G B. Default color is white (255 255 255).", CookieAccess_Public);
+  g_hCookie_FlashColor = RegClientCookie("nt_flashbang_color", "Which color to use for the flashbang blind effect. Format: R G B. Default color without cookie is white (255 255 255).", CookieAccess_Public);
+  g_hCookie_FlashColorName = RegClientCookie("nt_flashbang_colorname", "Custom color name stored by this player.", CookieAccess_Public);
 
   RegConsoleCmd("sm_flash", Command_FlashMenu);
   RegConsoleCmd("sm_flash_rgb", Command_FlashRGB);
@@ -36,7 +37,7 @@ public void OnPluginStart()
 
   for (int i = 1; i <= MaxClients; i++)
   {
-    ResetClientFlashColor(i);
+    ResetClientPreferences(i, false);
   }
 }
 
@@ -75,7 +76,7 @@ public void OnMapStart()
 
 public void OnClientAuthorized(int client)
 {
-  GetClientFlashColor(client);
+  GetClientPreferences(client);
 }
 
 public void OnClientDisconnect(int client)
@@ -83,7 +84,7 @@ public void OnClientDisconnect(int client)
   g_bIsForbiddenVision[client] = false;
   g_bWantsFlashbang[client] = false;
   g_bModifyCooldown[client] = false;
-  ResetClientFlashColor(client);
+  ResetClientPreferences(client);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -162,18 +163,28 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 
 public void OnClientCookiesCached(int client)
 {
-  decl String:cookieBuffer[MAX_RGB_STRLEN];
-  GetClientCookie(client, g_hCookie_FlashColor, cookieBuffer, sizeof(cookieBuffer));
-
-  decl String:rgbBuffer[RGB_ENUM_COUNT][4];
-  ExplodeString(cookieBuffer, " ",
-    rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
-
-  for (int i = 0; i < sizeof(rgbBuffer); i++)
+  // Get RGB color from client cookie, if one exists
+  char colorBuffer[MAX_RGB_STRLEN];
+  GetClientCookie(client, g_hCookie_FlashColor, colorBuffer, sizeof(colorBuffer));
+  if (strlen(colorBuffer) > 0)
   {
-    int color = CapRGBValue(StringToInt(rgbBuffer[i]));
-    g_iFlashColor[client][i] = color;
+    decl String:rgbBuffer[RGB_ENUM_COUNT][4];
+    ExplodeString(colorBuffer, " ",
+      rgbBuffer, sizeof(rgbBuffer), sizeof(rgbBuffer[]));
+
+    for (int i = 0; i < sizeof(rgbBuffer); i++)
+    {
+      int color = CapRGBValue(StringToInt(rgbBuffer[i]));
+      g_iFlashColor[client][i] = color;
+    }
+  }
+  // Get RGB color name from client cookie, if one exists
+  char colorNameBuffer[MAX_COLOR_STRLEN];
+  GetClientCookie(client, g_hCookie_FlashColorName, colorNameBuffer, sizeof(colorNameBuffer));
+  if (strlen(colorNameBuffer) > 0)
+  {
+    strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), colorNameBuffer);
   }
 
-  PrintToServer("Cookie cached for client %i! Value: %s", client, cookieBuffer);
+  PrintToServer("Cookie cached for client %i! Values: %s %s", client, colorBuffer, colorNameBuffer);
 }

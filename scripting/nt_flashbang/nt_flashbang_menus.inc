@@ -151,7 +151,11 @@ public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, in
   strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]),
     g_sFlashColor_Preset[choice][1]);
 
-  PrintToChat(client, "[SM] Flashbang color set to %s", g_sFlashColorName[client]);
+  // Store as cookies
+  SetClientCookie(client, g_hCookie_FlashColor, g_sFlashColor_Preset[choice][0]);
+  SetClientCookie(client, g_hCookie_FlashColorName, g_sFlashColor_Preset[choice][1]);
+
+  PrintToChat(client, "[SM] Flashbang color set to %s.", g_sFlashColorName[client]);
   ShowMenu_Color_Main(client);
 }
 

@@ -76,6 +76,7 @@ new const String:g_sNadeType[][] = {
 };
 
 Handle g_hCookie_FlashColor;
+Handle g_hCookie_FlashColorName;
 
 Handle g_hCvar_Enabled;
 Handle g_hCvar_Mode;
@@ -331,7 +332,7 @@ bool IsAssault(int client)
   return true;
 }
 
-void GetClientFlashColor(int client)
+void GetClientPreferences(int client)
 {
   if (!IsValidClient(client) || !AreClientCookiesCached(client))
     return;
@@ -342,7 +343,7 @@ void GetClientFlashColor(int client)
 // Purpose: Reset flash color for client index.
 // Color is reset back to default white, in case the
 // player has no color cookie set or it can't be read.
-void ResetClientFlashColor(int client)
+void ResetClientPreferences(int client, bool resetColorName = true)
 {
   if (client < 1 || client > MaxClients)
     ThrowError("Out of bounds client index %i", client);
@@ -350,6 +351,11 @@ void ResetClientFlashColor(int client)
   for (int i = 0; i < sizeof(g_iFlashColor[]); i++)
   {
     g_iFlashColor[client][i] = 255;
+  }
+
+  if (resetColorName)
+  {
+    strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), "");
   }
 }
 

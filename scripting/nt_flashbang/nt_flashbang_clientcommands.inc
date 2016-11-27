@@ -71,6 +71,8 @@ with color values 0-255");
     strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), "Custom");
   }
 
+  SetClientCookie(client, g_hCookie_FlashColorName, g_sFlashColorName[client]);
+
   ReplyToCommand(client, "[SM] Your flashbang color %s was set to: %s",
     g_sFlashColorName[client], cookieBuffer);
 
