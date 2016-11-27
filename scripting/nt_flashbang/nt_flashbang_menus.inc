@@ -31,26 +31,6 @@ void ShowMenu_Main(int client)
   delete panel;
 }
 
-public int PanelHandler_Main(Menu menu, MenuAction action, int client, int choice)
-{
-  if (action != MenuAction_Select)
-    return;
-
-  switch (choice)
-  {
-    // Color menu
-    case 1:
-    {
-      EmitSoundToClient(client, g_sMenuSound_OK);
-      ShowMenu_Color_Main(client);
-    }
-    case 10:
-    {
-      EmitSoundToClient(client, g_sMenuSound_Cancel);
-    }
-  }
-}
-
 void ShowMenu_Color_Main(int client)
 {
   if (!IsValidClient(client) || IsFakeClient(client))
@@ -96,6 +76,92 @@ void ShowMenu_Color_Preset(int client)
   menu.Display(client, MENU_TIME_FOREVER);
 }
 
+void ShowMenu_Color_Preset_Preview(int client)
+{
+  decl String:colorBuffer[MAX_COLOR_STRLEN];
+  Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
+    g_iColor_Preset[g_iFlashPreview[client]][RGB_RED],
+    g_iColor_Preset[g_iFlashPreview[client]][RGB_GREEN],
+    g_iColor_Preset[g_iFlashPreview[client]][RGB_BLUE]);
+
+  Panel panel = new Panel();
+  panel.SetTitle("Color preview");
+  panel.DrawText(" ");
+  panel.DrawText(g_sColorName_Preset[g_iFlashPreview[client]]);
+  panel.DrawText(colorBuffer);
+  panel.DrawText(" ");
+  panel.DrawItem("Preview flash effect");
+  panel.DrawItem("Save color");
+  panel.DrawText(" ");
+  panel.DrawItem("Back");
+  panel.Send(client, PanelHandler_Color_Preset_Preview, MENU_TIME_FOREVER);
+  delete panel;
+}
+
+void ShowMenu_Color_Preset_Commit(int client)
+{
+  int choice = g_iFlashPreview[client];
+
+  // Convert RGB to string for cookie
+  decl String:colorBuffer[MAX_COLOR_STRLEN];
+  Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
+    g_iColor_Preset[choice][RGB_RED],
+    g_iColor_Preset[choice][RGB_GREEN],
+    g_iColor_Preset[choice][RGB_BLUE]);
+
+  // Store preset color name
+  strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), g_sColorName_Preset[choice]);
+
+  // Store as cookies
+  SetClientCookie(client, g_hCookie_FlashColor, colorBuffer);
+  SetClientCookie(client, g_hCookie_FlashColorName, g_sFlashColorName[client]);
+
+  PrintToChat(client, "[SM] Flashbang color set to %s.", g_sFlashColorName[client]);
+  ShowMenu_Color_Main(client);
+}
+
+void ShowMenu_Color_Manual(int client)
+{
+  Panel panel = new Panel();
+  panel.SetTitle("Manually set color RGB");
+  panel.DrawText(" ");
+  panel.DrawText("You can set the flashbang color");
+  panel.DrawText("manually with the console command:");
+  panel.DrawText("sm_flash_rgb <Red> <Green> <Blue> <Name>");
+  panel.DrawText("where colors are a value between 0-255 and");
+  panel.DrawText("optionally <Name> is your custom color name.");
+  panel.DrawText("Names with spaces need quotes around them.");
+  panel.DrawText(" ");
+  panel.DrawText("For example: sm_flash_rgb 142 59 89 \"Quinacridone Magenta\"");
+  panel.DrawText(" ");
+
+  panel.CurrentKey = 8;
+  panel.DrawItem("Back");
+
+  panel.Send(client, PanelHandler_Color_Manual, MENU_TIME_FOREVER);
+  delete panel;
+}
+
+public int PanelHandler_Main(Menu menu, MenuAction action, int client, int choice)
+{
+  if (action != MenuAction_Select)
+    return;
+
+  switch (choice)
+  {
+    // Color menu
+    case 1:
+    {
+      EmitSoundToClient(client, g_sMenuSound_OK);
+      ShowMenu_Color_Main(client);
+    }
+    case 10:
+    {
+      EmitSoundToClient(client, g_sMenuSound_Cancel);
+    }
+  }
+}
+
 public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int choice)
 {
   if (action == MenuAction_End)
@@ -125,28 +191,6 @@ public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int 
   {
     ThrowError("Client %i picked unexpected menu choice %i", client, choice);
   }
-}
-
-void ShowMenu_Color_Preset_Preview(int client)
-{
-  decl String:colorBuffer[MAX_COLOR_STRLEN];
-  Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
-    g_iColor_Preset[g_iFlashPreview[client]][RGB_RED],
-    g_iColor_Preset[g_iFlashPreview[client]][RGB_GREEN],
-    g_iColor_Preset[g_iFlashPreview[client]][RGB_BLUE]);
-
-  Panel panel = new Panel();
-  panel.SetTitle("Color preview");
-  panel.DrawText(" ");
-  panel.DrawText(g_sColorName_Preset[g_iFlashPreview[client]]);
-  panel.DrawText(colorBuffer);
-  panel.DrawText(" ");
-  panel.DrawItem("Preview flash effect");
-  panel.DrawItem("Save color");
-  panel.DrawText(" ");
-  panel.DrawItem("Back");
-  panel.Send(client, PanelHandler_Color_Preset_Preview, MENU_TIME_FOREVER);
-  delete panel;
 }
 
 public int MenuHandler_Color_Preset(Menu menu, MenuAction action, int client, int choice)
@@ -206,50 +250,6 @@ public int PanelHandler_Color_Preset_Preview(Menu menu, MenuAction action, int c
       ShowMenu_Color_Main(client);
     }
   }
-}
-
-void ShowMenu_Color_Preset_Commit(int client)
-{
-  int choice = g_iFlashPreview[client];
-
-  // Convert RGB to string for cookie
-  decl String:colorBuffer[MAX_COLOR_STRLEN];
-  Format(colorBuffer, sizeof(colorBuffer), "%i %i %i",
-    g_iColor_Preset[choice][RGB_RED],
-    g_iColor_Preset[choice][RGB_GREEN],
-    g_iColor_Preset[choice][RGB_BLUE]);
-
-  // Store preset color name
-  strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), g_sColorName_Preset[choice]);
-
-  // Store as cookies
-  SetClientCookie(client, g_hCookie_FlashColor, colorBuffer);
-  SetClientCookie(client, g_hCookie_FlashColorName, g_sFlashColorName[client]);
-
-  PrintToChat(client, "[SM] Flashbang color set to %s.", g_sFlashColorName[client]);
-  ShowMenu_Color_Main(client);
-}
-
-void ShowMenu_Color_Manual(int client)
-{
-  Panel panel = new Panel();
-  panel.SetTitle("Manually set color RGB");
-  panel.DrawText(" ");
-  panel.DrawText("You can set the flashbang color");
-  panel.DrawText("manually with the console command:");
-  panel.DrawText("sm_flash_rgb <Red> <Green> <Blue> <Name>");
-  panel.DrawText("where colors are a value between 0-255 and");
-  panel.DrawText("optionally <Name> is your custom color name.");
-  panel.DrawText("Names with spaces need quotes around them.");
-  panel.DrawText(" ");
-  panel.DrawText("For example: sm_flash_rgb 142 59 89 \"Quinacridone Magenta\"");
-  panel.DrawText(" ");
-
-  panel.CurrentKey = 8;
-  panel.DrawItem("Back");
-
-  panel.Send(client, PanelHandler_Color_Manual, MENU_TIME_FOREVER);
-  delete panel;
 }
 
 public int PanelHandler_Color_Manual(Menu menu, MenuAction action, int client, int choice)
