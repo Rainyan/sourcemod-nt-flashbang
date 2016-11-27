@@ -164,7 +164,8 @@ void ShowMenu_Color_Manual(int client)
   Panel panel = new Panel();
   panel.SetTitle("Manually set color RGB");
   panel.DrawText(" ");
-  panel.DrawText("You can set the flashbang color manually with")
+  panel.DrawText("You can set the flashbang color");
+  panel.DrawText("manually with the console command:");
   panel.DrawText("sm_flash_rgb <Red> <Green> <Blue> <Name>");
   panel.DrawText("where colors are a value between 0-255 and");
   panel.DrawText("optionally <Name> is your custom color name.");
