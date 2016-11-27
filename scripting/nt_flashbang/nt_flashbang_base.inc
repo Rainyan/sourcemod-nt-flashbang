@@ -436,6 +436,7 @@ void PreviewFlash(int client, bool:previewCurrent = false)
   }
 
   int resetDuration = 2000;
+  int alpha = 150;
   Handle msgOut = StartMessageOne("Fade", client);
   BfWriteShort(msgOut, 500); // Flash duration
   BfWriteShort(msgOut, resetDuration); // View reset duration (ms times 2??)
@@ -443,7 +444,7 @@ void PreviewFlash(int client, bool:previewCurrent = false)
   BfWriteByte(msgOut, rgb[RGB_RED]);
   BfWriteByte(msgOut, rgb[RGB_GREEN]);
   BfWriteByte(msgOut, rgb[RGB_BLUE]);
-  BfWriteByte(msgOut, 255);
+  BfWriteByte(msgOut, alpha);
   EndMessage();
 
   int userid = GetClientUserId(client);
@@ -451,6 +452,7 @@ void PreviewFlash(int client, bool:previewCurrent = false)
   DataPack pack = new DataPack();
   pack.WriteCell(userid);
   pack.WriteCell(previewCurrent);
+  pack.WriteCell(alpha);
 
   CreateTimer(0.25 + resetDuration / 500.0, Timer_AllowVision, userid);
   CreateTimer(1.0, Timer_PreviewFlash_Remove, pack);

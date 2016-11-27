@@ -79,6 +79,7 @@ public Action Timer_PreviewFlash_Remove(Handle timer, DataPack pack)
   pack.Reset();
   int userid = pack.ReadCell();
   bool previewCurrent = pack.ReadCell();
+  int alpha = pack.ReadCell();
   delete pack;
 
   int client = GetClientOfUserId(userid);
@@ -105,7 +106,7 @@ public Action Timer_PreviewFlash_Remove(Handle timer, DataPack pack)
   BfWriteByte(msgIn, rgb[RGB_RED]);
   BfWriteByte(msgIn, rgb[RGB_GREEN]);
   BfWriteByte(msgIn, rgb[RGB_BLUE]);
-  BfWriteByte(msgIn, 255);
+  BfWriteByte(msgIn, alpha);
   EndMessage();
 
   return Plugin_Handled;
