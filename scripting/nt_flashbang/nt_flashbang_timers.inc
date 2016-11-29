@@ -40,7 +40,7 @@ public Action Timer_Flashify(Handle timer, int entRef)
   TE_WriteFloat("m_fRadius", 512.0);
   TE_WriteFloat("m_fTime", 0.1);
   TE_WriteFloat("m_fDecay", 0.0);
-  TE_SendToAll();
+  TE_SendToAllInRange(explosionPos, RangeType_Audibility);
 
   // Draw explosion mark on environment
   TE_Start("BSP Decal");
