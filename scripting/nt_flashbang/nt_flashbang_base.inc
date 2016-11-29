@@ -65,6 +65,8 @@ void Assaults_GiveSpawnInformation()
     if (!IsValidClient(i) || IsFakeClient(i) || !IsAssault(i))
       continue;
 
+    PrintGrenadeType(i);
+
     switch (mode)
     {
       case MODE_SPAWN_PICK:
@@ -425,4 +427,13 @@ void PreviewFlash(int client, bool:previewCurrent = false)
     rgb[RGB_RED],
     rgb[RGB_GREEN],
     rgb[RGB_BLUE]);
+}
+
+void PrintGrenadeType(int client)
+{
+  if (!IsValidClient(client) || IsFakeClient(client))
+    return;
+
+  PrintToChat(client, "[SM] Grenade type: %s",
+    g_sNadeType[g_bWantsFlashbang[client]]);
 }

@@ -160,8 +160,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
   // Flip flashbang preference for client
   g_bWantsFlashbang[client] = !g_bWantsFlashbang[client];
   // Announce current preference to client
-  PrintToChat(client, "[SM] Grenade type: %s",
-    g_sNadeType[g_bWantsFlashbang[client]]);
+  PrintGrenadeType(client);
 
   return Plugin_Continue;
 }
