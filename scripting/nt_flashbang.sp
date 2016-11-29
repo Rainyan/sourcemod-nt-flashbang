@@ -27,8 +27,9 @@ public void OnPluginStart()
   RegConsoleCmd("sm_flash", Command_FlashMenu);
   //RegConsoleCmd("sm_flash_rgb", Command_FlashRGB);
 
-  g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
+  g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
   g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the alt fire mode key, 3 = players can freely switch between a frag or flash at any time with the alt fire mode key.", _, true, 1.0, true, 3.0);
+  g_hCvar_Verbosity = CreateConVar("sm_flashbang_verbosity", "1", "Whether to print chat messages to assaults about the grenade mode", _, true, 0.0, true, 1.0);
 
   HookConVarChange(g_hCvar_Enabled, Cvar_Enabled);
 

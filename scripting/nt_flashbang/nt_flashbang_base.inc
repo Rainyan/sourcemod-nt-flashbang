@@ -54,6 +54,7 @@ Handle g_hCookie_FlashColorName;
 
 Handle g_hCvar_Enabled;
 Handle g_hCvar_Mode;
+Handle g_hCvar_Verbosity;
 
 // Purpose: Let assault players know which flashbang rules the server is using
 void Assaults_GiveSpawnInformation()
@@ -66,6 +67,9 @@ void Assaults_GiveSpawnInformation()
       continue;
 
     PrintGrenadeType(i);
+
+    if (!GetConVarBool(g_hCvar_Verbosity))
+      continue;
 
     switch (mode)
     {

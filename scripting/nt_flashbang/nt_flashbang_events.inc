@@ -6,6 +6,7 @@
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
   g_bCanModifyNade = true;
+
   Assaults_GiveSpawnInformation();
 
   if (GetConVarInt(g_hCvar_Mode) == MODE_SPAWN_PICK)
