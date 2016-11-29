@@ -184,5 +184,5 @@ public void OnClientCookiesCached(int client)
     strcopy(g_sFlashColorName[client], sizeof(g_sFlashColorName[]), colorNameBuffer);
   }
 
-  PrintToServer("Cookie cached for client %i! Values: %s %s", client, colorBuffer, colorNameBuffer);
+  //PrintToServer("Cookie cached for client %i! Values: %s %s", client, colorBuffer, colorNameBuffer);
 }
