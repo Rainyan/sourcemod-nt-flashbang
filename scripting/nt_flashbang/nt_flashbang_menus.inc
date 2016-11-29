@@ -295,7 +295,7 @@ public int PanelHandler_Color_Preset_Preview(Menu menu, MenuAction action, int c
     case 3:
     {
       EmitSoundToClient(client, g_sMenuSound_Cancel);
-      ShowMenu_Color_Main(client);
+      ShowMenu_Color_Preset(client);
     }
   }
 }
