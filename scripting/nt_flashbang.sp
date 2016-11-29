@@ -32,7 +32,7 @@ public void OnPluginStart()
 
   HookConVarChange(g_hCvar_Enabled, Cvar_Enabled);
 
-  CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
+  CreateConVar("sm_flashbang_version", PLUGIN_VERSION, "NT Flashbang plugin version.", FCVAR_SPONLY|FCVAR_REPLICATED);
 
   for (int i = 1; i <= MaxClients; i++)
   {
