@@ -25,7 +25,7 @@ public void OnPluginStart()
   g_hCookie_FlashColorName = RegClientCookie("nt_flashbang_colorname", "Custom color name stored by this player.", CookieAccess_Public);
 
   RegConsoleCmd("sm_flash", Command_FlashMenu);
-  RegConsoleCmd("sm_flash_rgb", Command_FlashRGB);
+  //RegConsoleCmd("sm_flash_rgb", Command_FlashRGB);
 
   g_hCvar_Enabled = CreateConVar("sm_flashbang_enabled", "1.0", "Toggle NT flashbang plugin on/off", _, true, 0.0, true, 1.0);
   g_hCvar_Mode = CreateConVar("sm_flashbang_mode", "3", "How flashbangs work. 1 = all frags are always flashbangs, 2 = players can choose between frag/flash at spawn with the alt fire mode key, 3 = players can freely switch between a frag or flash at any time with the alt fire mode key.", _, true, 1.0, true, 3.0);

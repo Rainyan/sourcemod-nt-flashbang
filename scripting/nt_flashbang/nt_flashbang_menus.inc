@@ -53,7 +53,7 @@ void ShowMenu_Color_Main(int client)
 
   menu.SetTitle(colorTitle);
   menu.AddItem("shade", "Choose new color");
-  menu.AddItem("manual", "Manually set color RGB");
+  //menu.AddItem("manual", "Manually set color RGB");
   menu.AddItem("preview", "Preview current color");
   menu.ExitButton = false;
   menu.ExitBackButton = true
@@ -163,6 +163,7 @@ void ShowMenu_Color_Preset_Commit(int client)
   ShowMenu_Color_Main(client);
 }
 
+/*
 void ShowMenu_Color_Manual(int client)
 {
   Panel panel = new Panel();
@@ -184,6 +185,7 @@ void ShowMenu_Color_Manual(int client)
   panel.Send(client, PanelHandler_Color_Manual, MENU_TIME_FOREVER);
   delete panel;
 }
+*/
 
 public int PanelHandler_Main(Menu menu, MenuAction action, int client, int choice)
 {
@@ -226,11 +228,11 @@ public int MenuHandler_Color_Main(Menu menu, MenuAction action, int client, int 
   {
     ShowMenu_Shade_Preset(client);
   }
-  else if (choice == 1)
+  /*else if (choice == 1)
   {
     ShowMenu_Color_Manual(client);
-  }
-  else if (choice == 2)
+  }*/
+  else if (choice == 1)
   {
     PreviewFlash(client, true);
     ShowMenu_Color_Main(client);

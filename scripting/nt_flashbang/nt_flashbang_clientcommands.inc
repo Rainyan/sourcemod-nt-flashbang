@@ -15,6 +15,7 @@ public Action Command_FlashMenu(int client, int args)
   return Plugin_Handled;
 }
 
+/*
 public Action Command_FlashRGB(int client, int args)
 {
   if (args != RGB_ENUM_COUNT && args != RGB_ENUM_COUNT + 1)
@@ -73,3 +74,4 @@ with color values 0-255");
 
   return Plugin_Handled;
 }
+*/
