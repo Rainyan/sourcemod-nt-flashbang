@@ -164,6 +164,8 @@ void Spectators_ShowBlindHint(int client, int intensity)
     TE_SetupGlowSprite(position, g_iSpecBlindHint_Full, 3.5, 0.1, 150);
   }
 
+  int spectatorList[MAXPLAYERS+1];
+  int spectatorCount;
   for (int i = 1; i <= MaxClients; i++)
   {
     if (!IsValidClient(i) || IsFakeClient(i))
@@ -173,8 +175,10 @@ void Spectators_ShowBlindHint(int client, int intensity)
     if (IsPlayerAlive(i) || team != TEAM_SPECTATOR)
       continue;
 
-    TE_SendToClient(i);
+    spectatorList[spectatorCount++];
   }
+
+  TE_Send(spectatorList, spectatorCount);
 }
 
 // Purpose: Check for line of sight from flashbang
