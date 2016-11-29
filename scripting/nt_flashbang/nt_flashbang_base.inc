@@ -278,7 +278,7 @@ void CheckIfFlashed(float[3] pos)
     else if (duration < 50)
       duration = 50;
 
-    PrintToChat(i, "Flashed! Intensity %i%%, duration %i%%)", intensity, duration/10);
+    PrintToChat(i, "Flashed! Intensity %i%%, duration %i%%", intensity, duration/10);
     BlindPlayer(i, intensity, duration);
 
     /*
