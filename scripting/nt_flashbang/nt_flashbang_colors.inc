@@ -56,3 +56,18 @@ new const String:g_sPreset_Color[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][] = {
     "Pink hue",
   },
 };
+
+void Test_RGB_Values()
+{
+  for (int i = 0; i < SHADE_ENUM_COUNT; i++)
+  {
+    int initialBrightness = g_iColor_Preset[i][0][0] + g_iColor_Preset[i][0][1] + g_iColor_Preset[i][0][2];
+    for (int j = 1; j < COLOR_ENUM_COUNT; j++)
+    {
+      if (initialBrightness != g_iColor_Preset[i][j][0] + g_iColor_Preset[i][j][1] + g_iColor_Preset[i][j][2])
+      {
+        SetFailState("RGB brightnesses are not equal!");
+      }
+    }
+  }
+}

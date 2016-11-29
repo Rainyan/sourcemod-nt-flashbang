@@ -40,6 +40,8 @@ public void OnPluginStart()
     if (IsValidClient(i) && !IsFakeClient(i) && IsClientAuthorized(i))
       OnClientCookiesCached(i);
   }
+
+  Test_RGB_Values();
 }
 
 public void OnConfigsExecuted()
