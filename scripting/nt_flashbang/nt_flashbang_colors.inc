@@ -32,17 +32,17 @@ enum {
 int g_iColor_Preset[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][RGB_ENUM_COUNT] = {
   // Monochrome
   {
-    { 223,  223,  223 },
-    { 255,  207, 207},
-    { 207,  255, 207},
-    { 207,  207, 255},
-    { 236,  236, 197},
-    { 236,  197, 236},
+    { 223, 223, 223 },
+    { 255, 207, 207 },
+    { 207, 255, 207 },
+    { 207, 207, 255 },
+    { 236, 236, 197 },
+    { 236, 197, 236 },
   }
 };
 
 new const String:g_sPreset_Shade[SHADE_ENUM_COUNT][] = {
-  "Monochrome",
+  "Group 1",
 };
 
 new const String:g_sPreset_Color[SHADE_ENUM_COUNT][COLOR_ENUM_COUNT][] = {
