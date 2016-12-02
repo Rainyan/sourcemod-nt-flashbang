@@ -181,7 +181,7 @@ void Spectators_ShowBlindHint(int client, int intensity)
     if (IsPlayerAlive(i) || team != TEAM_SPECTATOR)
       continue;
 
-    spectatorList[spectatorCount++];
+    spectatorList[spectatorCount++] = i;
   }
 
   TE_Send(spectatorList, spectatorCount);
