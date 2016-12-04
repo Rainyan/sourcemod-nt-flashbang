@@ -355,6 +355,8 @@ int[] GetRGB(const char[] sRGB)
     rgb[i] = CapRGBValue(StringToInt(rgbBuffer[i]));
   }
 
+  rgb = CapBrightness(rgb);
+
   return rgb;
 }
 
@@ -370,6 +372,24 @@ int CapRGBValue(int value)
   }
 
   return value;
+}
+
+int[] CapBrightness(int rgb[RGB_ENUM_COUNT])
+{
+  int customBrightness;
+  int defaultBrightness;
+  for (int i = 0; i < RGB_ENUM_COUNT; i++)
+  {
+    customBrightness += rgb[i];
+    defaultBrightness += g_iColor_Preset[SHADE_MONOCHROME][COLOR_1][i];
+  }
+
+  if (customBrightness != defaultBrightness)
+  {
+    return g_iColor_Preset[SHADE_MONOCHROME][COLOR_1];
+  }
+
+  return rgb;
 }
 
 void PreviewFlash(int client, bool:previewCurrent = false)
