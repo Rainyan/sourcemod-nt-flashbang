@@ -21,7 +21,7 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
-  g_hCookie_FlashColor = RegClientCookie("nt_flashbang_color", "Which color to use for the flashbang blind effect. Format: R G B. Default color without cookie is white (255 255 255).", CookieAccess_Protected);
+  g_hCookie_FlashColor = RegClientCookie("nt_flashbang_color", "Which color to use for the flashbang blind effect. Format: R G B. Default color without cookie is white.", CookieAccess_Protected);
   g_hCookie_FlashColorName = RegClientCookie("nt_flashbang_colorname", "Custom color name stored by this player.", CookieAccess_Public);
 
   RegConsoleCmd("sm_flash", Command_FlashMenu);
