@@ -212,10 +212,13 @@ void CheckIfFlashed(float[3] pos)
     float eyePos[3];
     GetClientEyePosition(i, eyePos);
 
-    if (!TraceHitEyes(i, pos, eyePos)) {
-      //PrintToChatAll("MISS!");
+    bool hitEyes = TraceHitEyes(i, pos, eyePos);
+    bool hitBody = TraceHitBody(i, pos, eyePos);
+
+    PrintToChatAll("Trace hit eyes: %b body: %b", hitEyes, hitBody);
+
+    if (!hitEyes && !hitBody)
       continue;
-    }
 
     // Eye angles player is facing, in other words world offset
     float eyeAngles[3];
