@@ -32,7 +32,7 @@ public bool TraceFilter(int hitEntity, int mask, any targetClient)
   for (int i = 0; i < sizeof(g_sFilterWhitelist); i++)
   {
     PrintToServer("Comparing %s vs %s", modelname, g_sFilterWhitelist[i]);
-    if (StrContains(modelname, g_sFilterWhitelist[i]) != -1)
+    if (StrEqual(modelname, g_sFilterWhitelist[i]))
     {
       return true;
     }

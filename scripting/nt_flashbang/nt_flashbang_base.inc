@@ -49,7 +49,7 @@ new const String:g_sNadeType[][] = {
   "FLASH"
 };
 new const String:g_sFilterWhitelist[][] = {
-  "chainlink_fence_"
+  "fence.mdl"
 };
 
 Handle g_hCookie_FlashColor;
