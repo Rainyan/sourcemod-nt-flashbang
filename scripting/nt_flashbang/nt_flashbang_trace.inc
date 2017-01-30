@@ -10,14 +10,16 @@ bool TraceHitEyes(int client, float[3] startPos, float[3] eyePos)
     TraceFilter_IsPlayer, client);
 
   int hitIndex = TR_GetEntityIndex(ray);
+  float hitPos[3];
+  TR_GetEndPosition(hitPos, ray);
   delete ray;
-  if (hitIndex != client) {
-    //PrintToChatAll("TR_GetEntityIndex %i is not client %i", hitIndex, client);
-    RenderRayTrace(false, startPos, eyePos);
-    return false;
+  bool didHit;
+  if (hitIndex == client) {
+    didHit = true;
   }
-  RenderRayTrace(true, startPos, eyePos);
-  return true;
+  //PrintToChatAll("TR_GetEntityIndex %i is not client %i", hitIndex, client);
+  RenderRayTrace(didHit, startPos, eyePos, hitPos);
+  return didHit;
 }
 
 bool TraceHitBody(int client, float[3] startPos, float[3] eyePos)
@@ -27,12 +29,9 @@ bool TraceHitBody(int client, float[3] startPos, float[3] eyePos)
   GetEntPropVector(client, Prop_Send, "m_vecMins", clientMins);
   GetEntPropVector(client, Prop_Send, "m_vecMaxs", clientMaxs);
 
-  float bodyThreshold = 0.0;
-  for (int i = 0; i < 3; i++)
-  {
-    clientMins[i] -= bodyThreshold;
-    clientMaxs[i] += bodyThreshold;
-  }
+  float hullScale = 1.25;
+  ScaleVector(clientMins, hullScale);
+  ScaleVector(clientMaxs, hullScale);
 /*
 mins -16.000000 -16.000000 0.000000
 maxs 16.000000 16.000000 64.000000
@@ -52,31 +51,59 @@ maxs 16.000000 16.000000 64.000000
     eyePos[0]+clientMaxs[0], eyePos[1]+clientMaxs[1], eyePos[2]+clientMaxs[2]
   );
 
-  Handle hull = TR_TraceHullEx(
-    startPos, eyePos, clientMins, clientMaxs, MASK_VISIBLE);
+  Handle hull = TR_TraceHullFilterEx(
+    startPos, eyePos, clientMins, clientMaxs, MASK_VISIBLE,
+    HullTraceFilter_IsPlayer, client);
 
   int hitIndex = TR_GetEntityIndex(hull);
+  float hitPos[3];
+  TR_GetEndPosition(hitPos, hull);
   delete hull;
   if (hitIndex == client) {
     //RenderHullTrace(startPos, eyePos, clientMaxs);
     hitBody = true;
   }
   RenderHullTrace(hitBody, startPos, eyePos, clientMins, clientMaxs);
+  //RenderHullHit(hitBody, startPos, hitPos);
   return hitBody;
 }
 
-void RenderRayTrace(bool success, float[3] startPos, float[3] eyePos)
+void RenderHullHit(bool success, float[3] startPos, float[3] hitPos)
 {
   int modelIndex = PrecacheModel("materials/sprites/laserbeam.vmt");
   int color[4];
   if (success)
-    color = { 150, 255, 150, 200 };
+    color = { 255, 255, 150, 200 };
   else
-    color = { 255, 150, 150, 200 };
+    color = { 150, 150, 255, 200 };
 
-  TE_SetupBeamPoints(startPos, eyePos, modelIndex, modelIndex,
+  TE_SetupBeamPoints(startPos, hitPos, modelIndex, modelIndex,
     0, 0, 10.0, 2.0, 5.0, 2, 1.0, color, 1);
   TE_SendToAll();
+}
+
+void RenderRayTrace(bool success, float[3] startPos, float[3] eyePos, float[3] hitPos)
+{
+  int modelIndex = PrecacheModel("materials/sprites/laserbeam.vmt");
+  int color_success[4] = { 150, 255, 150, 200 };
+  int color_fail[4] = { 255, 150, 150, 200 };
+  int color_enroute[4] = {150, 150, 255, 200 };
+
+  if (success)
+  {
+    TE_SetupBeamPoints(startPos, eyePos, modelIndex, modelIndex,
+      0, 0, 10.0, 2.0, 5.0, 2, 1.0, color_success, 1);
+    TE_SendToAll();
+  }
+  else
+  {
+    TE_SetupBeamPoints(startPos, hitPos, modelIndex, modelIndex,
+      0, 0, 10.0, 2.0, 5.0, 2, 1.0, color_enroute, 1);
+    TE_SendToAll();
+    TE_SetupBeamPoints(hitPos, eyePos, modelIndex, modelIndex,
+      0, 0, 10.0, 2.0, 5.0, 2, 1.0, color_fail, 1);
+    TE_SendToAll();
+  }
 }
 
 void RenderHullTrace(bool success, float[3] startPos, float[3] eyePos, float[3] mins, float[3] maxs)
@@ -87,7 +114,7 @@ void RenderHullTrace(bool success, float[3] startPos, float[3] eyePos, float[3] 
   float endBuffer_mins2[3];
   float endBuffer_maxs1[3];
   float endBuffer_maxs2[3];
-  
+
   if (success)
     color = { 150, 255, 150, 200 };
   else
@@ -134,6 +161,17 @@ void RenderHullTrace(bool success, float[3] startPos, float[3] eyePos, float[3] 
 // Purpose: Check whether trace hit entity index equals desired client index.
 // This means the ray hit this player.
 public bool TraceFilter_IsPlayer(int hitEntity, int mask, int targetClient)
+{
+  if (hitEntity == targetClient) {
+    //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, true);
+    return true;
+  }
+
+  //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, false);
+  return false;
+}
+
+public bool HullTraceFilter_IsPlayer(int hitEntity, int mask, int targetClient)
 {
   if (hitEntity == targetClient) {
     //PrintToServer("hitEntity %i target %i = %b", hitEntity, targetClient, true);
