@@ -36,6 +36,13 @@ void ShowMenu_Color_Main(int client)
   if (!IsValidClient(client) || IsFakeClient(client))
     ThrowError("Client %i is invalid or a bot.");
 
+  if (!GetConVarBool(g_hCvar_ColorsAllowed))
+  {
+    ShowMenu_Main(client);
+    ReplyToCommand(client, "[SM] Color customisation is currently disabled.");
+    return;
+  }
+
   Menu menu = new Menu(MenuHandler_Color_Main);
 
   // Format panel title
@@ -64,6 +71,13 @@ void ShowMenu_Color_Preset(int client)
 {
   if (!IsValidClient(client) || IsFakeClient(client))
     ThrowError("Client %i is invalid or a bot.");
+
+  if (!GetConVarBool(g_hCvar_ColorsAllowed))
+  {
+    ShowMenu_Main(client);
+    ReplyToCommand(client, "[SM] Color customisation is currently disabled.");
+    return;
+  }
 
   Menu menu = new Menu(MenuHandler_Color_Preset);
   menu.ExitButton = false;
@@ -102,6 +116,13 @@ public int MenuHandler_Shade_Preset(Menu menu, MenuAction action, int client, in
 
 void ShowMenu_Shade_Preset(int client)
 {
+  if (!GetConVarBool(g_hCvar_ColorsAllowed))
+  {
+    ShowMenu_Main(client);
+    ReplyToCommand(client, "[SM] Color customisation is currently disabled.");
+    return;
+  }
+
   Menu menu = new Menu(MenuHandler_Shade_Preset);
   menu.ExitButton = false;
   menu.ExitBackButton = true;
@@ -116,6 +137,13 @@ void ShowMenu_Shade_Preset(int client)
 
 void ShowMenu_Color_Preset_Preview(int client)
 {
+  if (!GetConVarBool(g_hCvar_ColorsAllowed))
+  {
+    ShowMenu_Main(client);
+    ReplyToCommand(client, "[SM] Color customisation is currently disabled.");
+    return;
+  }
+
   int shade = g_iShadeHolder[client];
   int color = g_iColorHolder[client];
 

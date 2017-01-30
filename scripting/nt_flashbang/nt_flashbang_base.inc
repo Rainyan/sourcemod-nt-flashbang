@@ -58,6 +58,7 @@ Handle g_hCookie_FlashColorName;
 Handle g_hCvar_Enabled;
 Handle g_hCvar_Mode;
 Handle g_hCvar_Verbosity;
+Handle g_hCvar_ColorsAllowed;
 
 // Purpose: Let assault players know which flashbang rules the server is using
 void Assaults_GiveSpawnInformation()
@@ -142,9 +143,20 @@ void BlindPlayer(int client, int intensity, int resetDuration)
   BfWriteShort(userMsg, 500); // Flash duration
   BfWriteShort(userMsg, resetDuration); // View reset duration (ms times 2??)
   BfWriteShort(userMsg, 0x0001); // Fade in flag
-  BfWriteByte(userMsg, g_iFlashColor[client][RGB_RED]);
-  BfWriteByte(userMsg, g_iFlashColor[client][RGB_GREEN]);
-  BfWriteByte(userMsg, g_iFlashColor[client][RGB_BLUE]);
+  // Custom blind color
+  if (GetConVarBool(g_hCvar_ColorsAllowed))
+  {
+    BfWriteByte(userMsg, g_iFlashColor[client][RGB_RED]);
+    BfWriteByte(userMsg, g_iFlashColor[client][RGB_GREEN]);
+    BfWriteByte(userMsg, g_iFlashColor[client][RGB_BLUE]);
+  }
+  // Forced white-ish hue
+  else
+  {
+    BfWriteByte(userMsg, g_iColor_Preset[SHADE_MONOCHROME][COLOR_1][RGB_RED]);
+    BfWriteByte(userMsg, g_iColor_Preset[SHADE_MONOCHROME][COLOR_1][RGB_GREEN]);
+    BfWriteByte(userMsg, g_iColor_Preset[SHADE_MONOCHROME][COLOR_1][RGB_BLUE]);
+  }
   BfWriteByte(userMsg, alpha);
   EndMessage();
 
@@ -404,6 +416,13 @@ void PreviewFlash(int client, bool:previewCurrent = false)
     return;
   }
   g_bIsForbiddenVision[client] = true;
+
+  // Previewing colors is disabled if custom colors aren't allowed
+  if (!GetConVarBool(g_hCvar_ColorsAllowed))
+  {
+    PrintToChat(client, "[SM] Color customisation is currently disabled.");
+    return;
+  }
 
   int rgb[RGB_ENUM_COUNT];
   char colorName[MAX_COLOR_STRLEN];
