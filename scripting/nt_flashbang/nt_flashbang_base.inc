@@ -48,9 +48,6 @@ new const String:g_sNadeType[][] = {
   "FRAG",
   "FLASH"
 };
-new const String:g_sFilterWhitelist[][] = {
-  "fence.mdl"
-};
 
 Handle g_hCookie_FlashColor;
 Handle g_hCookie_FlashColorName;
@@ -482,24 +479,4 @@ void PrintGrenadeType(int client)
 
   PrintToChat(client, "[SM] Grenade type: %s",
     g_sNadeType[g_bWantsFlashbang[client]]);
-}
-
-bool IsValidModel(int entity)
-{
-  if (!IsValidEntity(entity))
-    return false;
-
-  decl String:classname[24];
-  GetEntityClassname(entity, classname, sizeof(classname));
-
-  if (!StrEqual(classname, "prop_static") &&
-      !StrEqual(classname, "prop_dynamic") &&
-      !StrEqual(classname, "prop_dynamic_override") &&
-      !StrEqual(classname, "prop_physics") &&
-      !StrEqual(classname, "prop_physics_override"))
-  {
-    return false;
-  }
-
-  return true;
 }
