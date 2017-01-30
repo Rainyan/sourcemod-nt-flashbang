@@ -3,7 +3,7 @@
 #endif
 #define _flashbangs_base_included_
 
-#define PLUGIN_VERSION "0.3.5"
+#define PLUGIN_VERSION "0.3.6"
 
 #define FLASHBANG_FUSE 1.4
 
